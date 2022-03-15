@@ -1,0 +1,9 @@
+[package]
+name = "util"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+anyhow = "1.0.56"
+clap = { version = "3.1.6", features = ["derive"] }
