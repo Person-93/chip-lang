@@ -126,6 +126,110 @@
     }
   },
   {
+    "type": "extern_block",
+    "named": true,
+    "fields": {
+      "abi": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "extern_function",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "extern_function",
+    "named": true,
+    "fields": {
+      "identifier": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "inputs": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": ":",
+            "named": false
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "output": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "type",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "visibility_modifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "file",
     "named": true,
     "fields": {},
@@ -133,6 +237,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "extern_block",
+          "named": true
+        },
         {
           "type": "function",
           "named": true
@@ -146,7 +254,7 @@
     "fields": {
       "body": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "binding",
@@ -493,11 +601,6 @@
     }
   },
   {
-    "type": "unit_literal",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "visibility_modifier",
     "named": true,
     "fields": {}
@@ -645,6 +748,10 @@
   {
     "type": "u8",
     "named": false
+  },
+  {
+    "type": "unit_literal",
+    "named": true
   },
   {
     "type": "unsafe",

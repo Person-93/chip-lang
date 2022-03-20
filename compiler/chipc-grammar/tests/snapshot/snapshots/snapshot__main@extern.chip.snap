@@ -4,40 +4,37 @@ assertion_line: 18
 expression: "print(&tree, &source)"
 input_file: compiler/chipc-grammar/tests/snapshot/cases/extern.chip
 ---
-file @ 0:0..3:0
-  function @ 0:0..0:37
-    function_modifier @ 0:0..0:10
-      extern @ 0:0..0:6
-      string_literal @ 0:7..0:10	"C"
-    fn @ 0:11..0:13
-    identifier @ 0:14..0:22	identity
-    ( @ 0:23..0:24
-    identifier @ 0:24..0:25	n
-    : @ 0:25..0:26
-    type @ 0:27..0:29
-      path @ 0:27..0:29
-        path_segment @ 0:27..0:29
-          identifier @ 0:27..0:29	u8
-    ) @ 0:29..0:30
-    -> @ 0:31..0:33
-    type @ 0:34..0:36
-      path @ 0:34..0:36
-        path_segment @ 0:34..0:36
-          identifier @ 0:34..0:36	u8
-    ; @ 0:36..0:37
-  function @ 2:0..2:36
-    function_modifier @ 2:0..2:10
-      extern @ 2:0..2:6
-      string_literal @ 2:7..2:10	"C"
-    fn @ 2:11..2:13
-    identifier @ 2:14..2:24	the_answer
-    ( @ 2:24..2:25
-    ) @ 2:25..2:26
-    -> @ 2:27..2:29
-    type @ 2:30..2:32
-      path @ 2:30..2:32
-        path_segment @ 2:30..2:32
-          identifier @ 2:30..2:32	u8
-    : @ 2:32..2:33
-    numeric_literal @ 2:34..2:36
-      digits @ 2:34..2:36	42
+file @ 0:0..5:0
+  extern_block @ 0:0..2:1
+    extern @ 0:0..0:6
+    string_literal @ 0:7..0:10	"C"
+    { @ 0:11..0:12
+    extern_function @ 1:2..1:20
+      fn @ 1:2..1:4
+      identifier @ 1:5..1:12	foreign
+      ( @ 1:13..1:14
+      identifier @ 1:14..1:15	n
+      : @ 1:15..1:16
+      type @ 1:17..1:19
+        path @ 1:17..1:19
+          path_segment @ 1:17..1:19
+            identifier @ 1:17..1:19	u8
+      ) @ 1:19..1:20
+    ; @ 1:20..1:21
+    } @ 2:0..2:1
+  function @ 4:0..4:36
+    function_modifier @ 4:0..4:10
+      extern @ 4:0..4:6
+      string_literal @ 4:7..4:10	"C"
+    fn @ 4:11..4:13
+    identifier @ 4:14..4:24	the_answer
+    ( @ 4:24..4:25
+    ) @ 4:25..4:26
+    -> @ 4:27..4:29
+    type @ 4:30..4:32
+      path @ 4:30..4:32
+        path_segment @ 4:30..4:32
+          identifier @ 4:30..4:32	u8
+    : @ 4:32..4:33
+    numeric_literal @ 4:34..4:36
+      digits @ 4:34..4:36	42

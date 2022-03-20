@@ -30,6 +30,7 @@ module.exports = grammar({
     _item: $ => seq(
       choice(
         $.function,
+        $.extern_block,
         // TODO other items
         //  - top-level attrs
         //  - static items (including constants)
@@ -58,7 +59,8 @@ module.exports = grammar({
       ),
       ")",
       optional(seq("->", field("output", $.type))),
-      choice(";", seq(":", field("body", $._expr))),
+      ":",
+      field("body", $._expr),
     ),
     function_modifier: $ => choice(
       "const",
@@ -68,6 +70,31 @@ module.exports = grammar({
 
 
     type: $ => $.path,
+
+    extern_block: $ => seq(
+      "extern",
+      field("abi", optional($.string_literal)),
+      "{",
+      repeat($._extern_item),
+      "}",
+    ),
+    _extern_item: $ => seq(choice($.extern_function), ";"),
+    extern_function: $ => seq(
+      optional($.visibility_modifier),
+      "fn",
+      field("name", $.identifier),
+      "(",
+      field(
+        "inputs",
+        sepBy(",", seq(
+          field("identifier", $.identifier),
+          ":",
+          field("type", $.type),
+        )),
+      ),
+      ")",
+      optional(seq("->", field("output", $.type))),
+    ),
 
 
     visibility_modifier: $ => seq(
@@ -118,7 +145,7 @@ module.exports = grammar({
       $.boolean_literal,
       $.numeric_literal,
     ),
-    unit_literal: $ => seq("(", ")"),
+    unit_literal: $ => token(seq("(", ")")),
     string_literal: $ => /"[^"]*"/, // TODO handle escape sequence in string literal
     boolean_literal: $ => choice("true", "false"),
     numeric_literal: $ => seq(
