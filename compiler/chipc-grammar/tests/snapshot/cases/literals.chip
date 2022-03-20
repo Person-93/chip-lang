@@ -1,0 +1,26 @@
+fn main(): {
+  let number := 42;
+  let number := 42u8;
+  let number := 42u16;
+  let number := 42u32;
+  let number := 42u64;
+  let number := 42u128;
+  let number := 42usize;
+  let number := 42i8;
+  let number := 42i16;
+  let number := 42i32;
+  let number := 42i64;
+  let number := 42i128;
+  let number := 42isize;
+
+  let number := 42f32;
+  let number := 42f64;
+  let number := 42.0;
+  let number := 42.0f32;
+  let number := 42.0f64;
+
+  let text := "hello world";
+
+  let boolean := true;
+  let boolean := false;
+}

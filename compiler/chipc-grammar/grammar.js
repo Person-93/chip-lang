@@ -58,7 +58,7 @@ module.exports = grammar({
       ),
       ")",
       optional(seq("->", field("output", $.type))),
-      choice(";", seq(":", field("body", $.expr))),
+      choice(";", seq(":", field("body", $._expr))),
     ),
     function_modifier: $ => choice(
       "const",
@@ -76,34 +76,57 @@ module.exports = grammar({
     ),
 
 
-    expr: $ => choice(
-      $.literal,
+    _expr: $ => choice(
+      $._literal,
       $.tuple_expression,
+      $.codeblock,
+      $.binding,
       // TODO unary operation
       // TODO binary operation
       // TODO member access
       // TODO cast operation
     ),
+    codeblock: $ => seq(
+      "{",
+      field("statements", repeat(seq($._expr, ";"))),
+      field("trailing", optional($._expr)),
+      "}",
+    ),
+    binding: $ => seq(
+      "let",
+      $.identifier,
+      ":=",
+      $._expr,
+    ),
 
-    tuple_expression: $ => seq("(", field("members", repeat($.expr)), ")"),
+    tuple_expression: $ => seq(
+      "(",
+      field("members", sepBy1(",", $._expr)),
+      ")",
+    ),
 
 
     path: $ => seq(optional("::"), sepBy1("::", $.path_segment)),
     path_segment: $ => seq($.identifier, optional($.generic_args)),
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
-    generic_args: $ => seq("::<", sepBy1(",", $.expr), ">"),
+    generic_args: $ => seq("::<", sepBy1(",", $._expr), ">"),
 
 
-    literal: $ => choice(
+    _literal: $ => choice(
       $.unit_literal,
       $.string_literal,
       $.boolean_literal,
       $.numeric_literal,
     ),
-    unit_literal: $ => prec(2, seq("(", ")")),
+    unit_literal: $ => seq("(", ")"),
     string_literal: $ => /"[^"]*"/, // TODO handle escape sequence in string literal
     boolean_literal: $ => choice("true", "false"),
-    numeric_literal: $ => /\d+(\.\d+)?/,
+    numeric_literal: $ => seq(
+      field("value", $.digits),
+      optional(seq(".", field("float_part", $.digits))),
+      field("suffix", optional(choice(...NUMERIC_TYPES))),
+    ),
+    digits: $ => /\d+/,
 
 
     word: $ => /[_\p{XID_Start}][_\p{XID_Continue}]*/
