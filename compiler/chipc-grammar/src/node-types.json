@@ -1,5 +1,77 @@
 [
   {
+    "type": "attr",
+    "named": true,
+    "fields": {
+      "args": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "attr",
+            "named": true
+          },
+          {
+            "type": "boolean_literal",
+            "named": true
+          },
+          {
+            "type": "numeric_literal",
+            "named": true
+          },
+          {
+            "type": "string_literal",
+            "named": true
+          },
+          {
+            "type": "unit_literal",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "attr",
+            "named": true
+          },
+          {
+            "type": "boolean_literal",
+            "named": true
+          },
+          {
+            "type": "numeric_literal",
+            "named": true
+          },
+          {
+            "type": "string_literal",
+            "named": true
+          },
+          {
+            "type": "unit_literal",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "path",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "binding",
     "named": true,
     "fields": {},
@@ -238,6 +310,10 @@
       "required": false,
       "types": [
         {
+          "type": "attr",
+          "named": true
+        },
+        {
           "type": "extern_block",
           "named": true
         },
@@ -354,6 +430,10 @@
       "required": false,
       "types": [
         {
+          "type": "attr",
+          "named": true
+        },
+        {
           "type": "function_modifier",
           "named": true
         },
@@ -381,7 +461,7 @@
     }
   },
   {
-    "type": "generic_args",
+    "type": "generic_params",
     "named": true,
     "fields": {},
     "children": {
@@ -531,7 +611,7 @@
       "required": true,
       "types": [
         {
-          "type": "generic_args",
+          "type": "generic_params",
           "named": true
         },
         {
@@ -606,6 +686,14 @@
     "fields": {}
   },
   {
+    "type": "#[",
+    "named": false
+  },
+  {
+    "type": "#^[",
+    "named": false
+  },
+  {
     "type": "(",
     "named": false
   },
@@ -646,7 +734,15 @@
     "named": false
   },
   {
+    "type": "=",
+    "named": false
+  },
+  {
     "type": ">",
+    "named": false
+  },
+  {
+    "type": "]",
     "named": false
   },
   {

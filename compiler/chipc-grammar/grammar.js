@@ -25,7 +25,7 @@ module.exports = grammar({
   word: $ => $.word,
 
   rules: {
-    file: $ => repeat($._item),
+    file: $ => seq(repeat($._inner_attribute), repeat($._item)),
 
     _item: $ => seq(
       choice(
@@ -42,7 +42,27 @@ module.exports = grammar({
     ),
 
 
+    _inner_attribute: $ => seq("#^[", $.attr, "]"),
+    _outer_attribute: $ => seq("#[", $.attr, "]"),
+    attr: $ => seq(
+      $.path,
+      optional(choice(
+        seq("=", field("value", $._attr_data_value)),
+        seq(
+          "(",
+          field("args", sepBy(",", $._attr_data_value)),
+          ")",
+        ),
+      )),
+    ),
+    _attr_data_value: $ => choice(
+      $._literal,
+      $.attr,
+    ),
+
+
     function: $ => seq(
+      repeat($._outer_attribute),
       optional($.visibility_modifier),
       optional($.function_modifier),
       "fn",
@@ -133,10 +153,10 @@ module.exports = grammar({
     ),
 
 
-    path: $ => seq(optional("::"), sepBy1("::", $.path_segment)),
-    path_segment: $ => seq($.identifier, optional($.generic_args)),
+    path: $ => seq(optional("::"), sepBy1("::", $.path_segment, false)),
+    path_segment: $ => seq($.identifier, optional($.generic_params)),
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
-    generic_args: $ => seq("::<", sepBy1(",", $._expr), ">"),
+    generic_params: $ => seq("::<", sepBy1(",", $._expr), ">"),
 
 
     _literal: $ => choice(
@@ -165,5 +185,7 @@ function sepBy(sep, rule, trailing = true) {
 }
 
 function sepBy1(sep, rule, trailing = true) {
-  return seq(rule, repeat(seq(sep, rule)), trailing ? optional(sep) : undefined);
+  return trailing ?
+    seq(rule, repeat(seq(sep, rule)), optional(sep)) :
+    seq(rule, repeat(seq(sep, rule)));
 }
