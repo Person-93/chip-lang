@@ -17,6 +17,7 @@ fi
 readonly dependencies=(
   cargo
   pre-commit
+  yarn
 )
 
 function main() {
