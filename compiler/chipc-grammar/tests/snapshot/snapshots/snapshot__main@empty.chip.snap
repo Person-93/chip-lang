@@ -1,7 +1,0 @@
----
-source: compiler/chipc-grammar/tests/snapshot/main.rs
-assertion_line: 18
-expression: "print(&tree, &source)"
-input_file: compiler/chipc-grammar/tests/snapshot/cases/empty.chip
----
-file @ 0:0..0:0

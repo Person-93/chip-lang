@@ -9,5 +9,8 @@
   "license": "UNLICENSED",
   "main": "bindings/node",
   "name": "tree-sitter-chip",
+  "scripts": {
+    "generate": "tree-sitter generate --no-bindings ../grammar.js"
+  },
   "version": "0.0.0"
 }

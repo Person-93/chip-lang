@@ -46,7 +46,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "chipc-grammar"
+name = "chipc-ast"
 version = "0.0.0"
 dependencies = [
  "cc",
@@ -58,7 +58,7 @@ dependencies = [
 name = "chipc-main"
 version = "0.0.0"
 dependencies = [
- "chipc-grammar",
+ "chipc-ast",
 ]
 
 [[package]]

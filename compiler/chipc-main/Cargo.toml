@@ -5,4 +5,4 @@ edition = "2021"
 publish = false
 
 [dependencies]
-chipc-grammar = { path = "../chipc-grammar" }
+chipc-ast = { path = "../chipc-ast" }

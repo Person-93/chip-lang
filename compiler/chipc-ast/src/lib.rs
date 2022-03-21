@@ -1,27 +1,34 @@
-use crate::debug_print::print;
-use insta::{assert_snapshot, glob};
-use std::fs;
-use tree_sitter::Parser;
+pub use grammar::*;
 
-fn main() {
-  let mut parser = Parser::new();
-  parser
-    .set_language(chipc_grammar::language())
-    .expect("assign language to parser");
+#[path = "../grammar/bindings/rust/lib.rs"]
+mod grammar;
 
-  glob!("cases/*.chip", |path| {
-    parser.reset();
-    let source = fs::read_to_string(path).expect("read snapshot test case");
-    let tree = parser
-      .parse(&source, None)
-      .expect("parse snapshot test case");
-    assert_snapshot!(print(&tree, &source));
-  });
-}
+#[cfg(test)]
+mod tests {
+  use crate::grammar;
+  use insta::{assert_snapshot, glob};
+  use std::{
+    fmt::{self, Write},
+    fs,
+  };
+  use tree_sitter::{Parser, Point, Tree, TreeCursor};
 
-mod debug_print {
-  use std::fmt::{self, Write};
-  use tree_sitter::{Point, Tree, TreeCursor};
+  #[test]
+  fn snapshot() {
+    let mut parser = Parser::new();
+    parser
+      .set_language(grammar::language())
+      .expect("assign language to parser");
+
+    glob!("cases/*.chip", |path| {
+      parser.reset();
+      let source = fs::read_to_string(path).expect("read snapshot test case");
+      let tree = parser
+        .parse(&source, None)
+        .expect("parse snapshot test case");
+      assert_snapshot!(print(&tree, &source));
+    });
+  }
 
   pub fn print(tree: &Tree, source: &str) -> String {
     let mut output = String::new();

@@ -1,8 +1,8 @@
 ---
-source: compiler/chipc-grammar/tests/snapshot/main.rs
-assertion_line: 18
+source: compiler/chipc-ast/src/lib.rs
+assertion_line: 27
 expression: "print(&tree, &source)"
-input_file: compiler/chipc-grammar/tests/snapshot/cases/simple.chip
+input_file: compiler/chipc-ast/src/cases/simple.chip
 ---
 file @ 0:0..1:0
   function @ 0:0..0:10

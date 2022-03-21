@@ -1,0 +1,7 @@
+---
+source: compiler/chipc-ast/src/lib.rs
+assertion_line: 27
+expression: "print(&tree, &source)"
+input_file: compiler/chipc-ast/src/cases/empty.chip
+---
+file @ 0:0..0:0

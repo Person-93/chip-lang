@@ -1,0 +1,15 @@
+[package]
+name = "chipc-ast"
+version = "0.0.0"
+edition = "2021"
+publish = false
+build = "grammar/bindings/rust/build.rs"
+
+[dependencies]
+tree-sitter = "0.20.6"
+
+[build-dependencies]
+cc = "1"
+
+[dev-dependencies]
+insta = { version = "1.13.0", features = ["glob"] }
