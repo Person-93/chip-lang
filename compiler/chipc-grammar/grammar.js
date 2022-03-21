@@ -27,18 +27,16 @@ module.exports = grammar({
   rules: {
     file: $ => seq(repeat($._inner_attribute), repeat($._item)),
 
-    _item: $ => seq(
-      choice(
-        $.function,
-        $.extern_block,
-        // TODO other items
-        //  - top-level attrs
-        //  - static items (including constants)
-        //  - imports
-        //  - ADTs
-        //  - impl blocks?
-        //  - traits
-      ),
+    _item: $ => choice(
+      $.function,
+      $.extern_block,
+      // TODO other items
+      //  - top-level attrs
+      //  - static items (including constants)
+      //  - imports
+      //  - ADTs
+      //  - impl blocks?
+      //  - traits
     ),
 
 
@@ -119,7 +117,10 @@ module.exports = grammar({
 
     visibility_modifier: $ => seq(
       "pub",
-      optional(seq("(", choice("super", "package"), ")")),
+      optional(seq("(",
+        field("restriction", choice("super", "package")),
+        ")"),
+      ),
     ),
 
 
@@ -127,7 +128,6 @@ module.exports = grammar({
       $._literal,
       $.tuple_expression,
       $.codeblock,
-      $.binding,
       // TODO unary operation
       // TODO binary operation
       // TODO member access
@@ -135,21 +135,23 @@ module.exports = grammar({
     ),
     codeblock: $ => seq(
       "{",
-      field("statements", repeat(seq($._expr, ";"))),
+      repeat($.statement),
       field("trailing", optional($._expr)),
       "}",
     ),
-    binding: $ => seq(
-      "let",
-      $.identifier,
-      ":=",
-      $._expr,
-    ),
+    statement: $ => seq(choice($._expr, $.let_binding), ";"),
 
     tuple_expression: $ => seq(
       "(",
       field("members", sepBy1(",", $._expr)),
       ")",
+    ),
+
+    let_binding: $ => seq(
+      "let",
+      $.identifier,
+      ":=",
+      field("value", $._expr),
     ),
 
 

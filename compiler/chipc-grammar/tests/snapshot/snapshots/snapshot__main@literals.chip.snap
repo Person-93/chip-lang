@@ -13,172 +13,193 @@ file @ 0:0..26:0
     : @ 0:9..0:10
     codeblock @ 0:11..25:1
       { @ 0:11..0:12
-      binding @ 1:2..1:18
-        let @ 1:2..1:5
-        identifier @ 1:6..1:12	number
-        := @ 1:13..1:15
-        numeric_literal @ 1:16..1:18
-          digits @ 1:16..1:18	42
-      ; @ 1:18..1:19
-      binding @ 2:2..2:20
-        let @ 2:2..2:5
-        identifier @ 2:6..2:12	number
-        := @ 2:13..2:15
-        numeric_literal @ 2:16..2:20
-          digits @ 2:16..2:18	42
-          u8 @ 2:18..2:20
-      ; @ 2:20..2:21
-      binding @ 3:2..3:21
-        let @ 3:2..3:5
-        identifier @ 3:6..3:12	number
-        := @ 3:13..3:15
-        numeric_literal @ 3:16..3:21
-          digits @ 3:16..3:18	42
-          u16 @ 3:18..3:21
-      ; @ 3:21..3:22
-      binding @ 4:2..4:21
-        let @ 4:2..4:5
-        identifier @ 4:6..4:12	number
-        := @ 4:13..4:15
-        numeric_literal @ 4:16..4:21
-          digits @ 4:16..4:18	42
-          u32 @ 4:18..4:21
-      ; @ 4:21..4:22
-      binding @ 5:2..5:21
-        let @ 5:2..5:5
-        identifier @ 5:6..5:12	number
-        := @ 5:13..5:15
-        numeric_literal @ 5:16..5:21
-          digits @ 5:16..5:18	42
-          u64 @ 5:18..5:21
-      ; @ 5:21..5:22
-      binding @ 6:2..6:22
-        let @ 6:2..6:5
-        identifier @ 6:6..6:12	number
-        := @ 6:13..6:15
-        numeric_literal @ 6:16..6:22
-          digits @ 6:16..6:18	42
-          u128 @ 6:18..6:22
-      ; @ 6:22..6:23
-      binding @ 7:2..7:23
-        let @ 7:2..7:5
-        identifier @ 7:6..7:12	number
-        := @ 7:13..7:15
-        numeric_literal @ 7:16..7:23
-          digits @ 7:16..7:18	42
-          usize @ 7:18..7:23
-      ; @ 7:23..7:24
-      binding @ 8:2..8:20
-        let @ 8:2..8:5
-        identifier @ 8:6..8:12	number
-        := @ 8:13..8:15
-        numeric_literal @ 8:16..8:20
-          digits @ 8:16..8:18	42
-          i8 @ 8:18..8:20
-      ; @ 8:20..8:21
-      binding @ 9:2..9:21
-        let @ 9:2..9:5
-        identifier @ 9:6..9:12	number
-        := @ 9:13..9:15
-        numeric_literal @ 9:16..9:21
-          digits @ 9:16..9:18	42
-          i16 @ 9:18..9:21
-      ; @ 9:21..9:22
-      binding @ 10:2..10:21
-        let @ 10:2..10:5
-        identifier @ 10:6..10:12	number
-        := @ 10:13..10:15
-        numeric_literal @ 10:16..10:21
-          digits @ 10:16..10:18	42
-          i32 @ 10:18..10:21
-      ; @ 10:21..10:22
-      binding @ 11:2..11:21
-        let @ 11:2..11:5
-        identifier @ 11:6..11:12	number
-        := @ 11:13..11:15
-        numeric_literal @ 11:16..11:21
-          digits @ 11:16..11:18	42
-          i64 @ 11:18..11:21
-      ; @ 11:21..11:22
-      binding @ 12:2..12:22
-        let @ 12:2..12:5
-        identifier @ 12:6..12:12	number
-        := @ 12:13..12:15
-        numeric_literal @ 12:16..12:22
-          digits @ 12:16..12:18	42
-          i128 @ 12:18..12:22
-      ; @ 12:22..12:23
-      binding @ 13:2..13:23
-        let @ 13:2..13:5
-        identifier @ 13:6..13:12	number
-        := @ 13:13..13:15
-        numeric_literal @ 13:16..13:23
-          digits @ 13:16..13:18	42
-          isize @ 13:18..13:23
-      ; @ 13:23..13:24
-      binding @ 15:2..15:21
-        let @ 15:2..15:5
-        identifier @ 15:6..15:12	number
-        := @ 15:13..15:15
-        numeric_literal @ 15:16..15:21
-          digits @ 15:16..15:18	42
-          f32 @ 15:18..15:21
-      ; @ 15:21..15:22
-      binding @ 16:2..16:21
-        let @ 16:2..16:5
-        identifier @ 16:6..16:12	number
-        := @ 16:13..16:15
-        numeric_literal @ 16:16..16:21
-          digits @ 16:16..16:18	42
-          f64 @ 16:18..16:21
-      ; @ 16:21..16:22
-      binding @ 17:2..17:20
-        let @ 17:2..17:5
-        identifier @ 17:6..17:12	number
-        := @ 17:13..17:15
-        numeric_literal @ 17:16..17:20
-          digits @ 17:16..17:18	42
-          . @ 17:18..17:19
-          digits @ 17:19..17:20	0
-      ; @ 17:20..17:21
-      binding @ 18:2..18:23
-        let @ 18:2..18:5
-        identifier @ 18:6..18:12	number
-        := @ 18:13..18:15
-        numeric_literal @ 18:16..18:23
-          digits @ 18:16..18:18	42
-          . @ 18:18..18:19
-          digits @ 18:19..18:20	0
-          f32 @ 18:20..18:23
-      ; @ 18:23..18:24
-      binding @ 19:2..19:23
-        let @ 19:2..19:5
-        identifier @ 19:6..19:12	number
-        := @ 19:13..19:15
-        numeric_literal @ 19:16..19:23
-          digits @ 19:16..19:18	42
-          . @ 19:18..19:19
-          digits @ 19:19..19:20	0
-          f64 @ 19:20..19:23
-      ; @ 19:23..19:24
-      binding @ 21:2..21:27
-        let @ 21:2..21:5
-        identifier @ 21:6..21:10	text
-        := @ 21:11..21:13
-        string_literal @ 21:14..21:27	"hello world"
-      ; @ 21:27..21:28
-      binding @ 23:2..23:21
-        let @ 23:2..23:5
-        identifier @ 23:6..23:13	boolean
-        := @ 23:14..23:16
-        boolean_literal @ 23:17..23:21
-          true @ 23:17..23:21
-      ; @ 23:21..23:22
-      binding @ 24:2..24:22
-        let @ 24:2..24:5
-        identifier @ 24:6..24:13	boolean
-        := @ 24:14..24:16
-        boolean_literal @ 24:17..24:22
-          false @ 24:17..24:22
-      ; @ 24:22..24:23
+      statement @ 1:2..1:19
+        let_binding @ 1:2..1:18
+          let @ 1:2..1:5
+          identifier @ 1:6..1:12	number
+          := @ 1:13..1:15
+          numeric_literal @ 1:16..1:18
+            digits @ 1:16..1:18	42
+        ; @ 1:18..1:19
+      statement @ 2:2..2:21
+        let_binding @ 2:2..2:20
+          let @ 2:2..2:5
+          identifier @ 2:6..2:12	number
+          := @ 2:13..2:15
+          numeric_literal @ 2:16..2:20
+            digits @ 2:16..2:18	42
+            u8 @ 2:18..2:20
+        ; @ 2:20..2:21
+      statement @ 3:2..3:22
+        let_binding @ 3:2..3:21
+          let @ 3:2..3:5
+          identifier @ 3:6..3:12	number
+          := @ 3:13..3:15
+          numeric_literal @ 3:16..3:21
+            digits @ 3:16..3:18	42
+            u16 @ 3:18..3:21
+        ; @ 3:21..3:22
+      statement @ 4:2..4:22
+        let_binding @ 4:2..4:21
+          let @ 4:2..4:5
+          identifier @ 4:6..4:12	number
+          := @ 4:13..4:15
+          numeric_literal @ 4:16..4:21
+            digits @ 4:16..4:18	42
+            u32 @ 4:18..4:21
+        ; @ 4:21..4:22
+      statement @ 5:2..5:22
+        let_binding @ 5:2..5:21
+          let @ 5:2..5:5
+          identifier @ 5:6..5:12	number
+          := @ 5:13..5:15
+          numeric_literal @ 5:16..5:21
+            digits @ 5:16..5:18	42
+            u64 @ 5:18..5:21
+        ; @ 5:21..5:22
+      statement @ 6:2..6:23
+        let_binding @ 6:2..6:22
+          let @ 6:2..6:5
+          identifier @ 6:6..6:12	number
+          := @ 6:13..6:15
+          numeric_literal @ 6:16..6:22
+            digits @ 6:16..6:18	42
+            u128 @ 6:18..6:22
+        ; @ 6:22..6:23
+      statement @ 7:2..7:24
+        let_binding @ 7:2..7:23
+          let @ 7:2..7:5
+          identifier @ 7:6..7:12	number
+          := @ 7:13..7:15
+          numeric_literal @ 7:16..7:23
+            digits @ 7:16..7:18	42
+            usize @ 7:18..7:23
+        ; @ 7:23..7:24
+      statement @ 8:2..8:21
+        let_binding @ 8:2..8:20
+          let @ 8:2..8:5
+          identifier @ 8:6..8:12	number
+          := @ 8:13..8:15
+          numeric_literal @ 8:16..8:20
+            digits @ 8:16..8:18	42
+            i8 @ 8:18..8:20
+        ; @ 8:20..8:21
+      statement @ 9:2..9:22
+        let_binding @ 9:2..9:21
+          let @ 9:2..9:5
+          identifier @ 9:6..9:12	number
+          := @ 9:13..9:15
+          numeric_literal @ 9:16..9:21
+            digits @ 9:16..9:18	42
+            i16 @ 9:18..9:21
+        ; @ 9:21..9:22
+      statement @ 10:2..10:22
+        let_binding @ 10:2..10:21
+          let @ 10:2..10:5
+          identifier @ 10:6..10:12	number
+          := @ 10:13..10:15
+          numeric_literal @ 10:16..10:21
+            digits @ 10:16..10:18	42
+            i32 @ 10:18..10:21
+        ; @ 10:21..10:22
+      statement @ 11:2..11:22
+        let_binding @ 11:2..11:21
+          let @ 11:2..11:5
+          identifier @ 11:6..11:12	number
+          := @ 11:13..11:15
+          numeric_literal @ 11:16..11:21
+            digits @ 11:16..11:18	42
+            i64 @ 11:18..11:21
+        ; @ 11:21..11:22
+      statement @ 12:2..12:23
+        let_binding @ 12:2..12:22
+          let @ 12:2..12:5
+          identifier @ 12:6..12:12	number
+          := @ 12:13..12:15
+          numeric_literal @ 12:16..12:22
+            digits @ 12:16..12:18	42
+            i128 @ 12:18..12:22
+        ; @ 12:22..12:23
+      statement @ 13:2..13:24
+        let_binding @ 13:2..13:23
+          let @ 13:2..13:5
+          identifier @ 13:6..13:12	number
+          := @ 13:13..13:15
+          numeric_literal @ 13:16..13:23
+            digits @ 13:16..13:18	42
+            isize @ 13:18..13:23
+        ; @ 13:23..13:24
+      statement @ 15:2..15:22
+        let_binding @ 15:2..15:21
+          let @ 15:2..15:5
+          identifier @ 15:6..15:12	number
+          := @ 15:13..15:15
+          numeric_literal @ 15:16..15:21
+            digits @ 15:16..15:18	42
+            f32 @ 15:18..15:21
+        ; @ 15:21..15:22
+      statement @ 16:2..16:22
+        let_binding @ 16:2..16:21
+          let @ 16:2..16:5
+          identifier @ 16:6..16:12	number
+          := @ 16:13..16:15
+          numeric_literal @ 16:16..16:21
+            digits @ 16:16..16:18	42
+            f64 @ 16:18..16:21
+        ; @ 16:21..16:22
+      statement @ 17:2..17:21
+        let_binding @ 17:2..17:20
+          let @ 17:2..17:5
+          identifier @ 17:6..17:12	number
+          := @ 17:13..17:15
+          numeric_literal @ 17:16..17:20
+            digits @ 17:16..17:18	42
+            . @ 17:18..17:19
+            digits @ 17:19..17:20	0
+        ; @ 17:20..17:21
+      statement @ 18:2..18:24
+        let_binding @ 18:2..18:23
+          let @ 18:2..18:5
+          identifier @ 18:6..18:12	number
+          := @ 18:13..18:15
+          numeric_literal @ 18:16..18:23
+            digits @ 18:16..18:18	42
+            . @ 18:18..18:19
+            digits @ 18:19..18:20	0
+            f32 @ 18:20..18:23
+        ; @ 18:23..18:24
+      statement @ 19:2..19:24
+        let_binding @ 19:2..19:23
+          let @ 19:2..19:5
+          identifier @ 19:6..19:12	number
+          := @ 19:13..19:15
+          numeric_literal @ 19:16..19:23
+            digits @ 19:16..19:18	42
+            . @ 19:18..19:19
+            digits @ 19:19..19:20	0
+            f64 @ 19:20..19:23
+        ; @ 19:23..19:24
+      statement @ 21:2..21:28
+        let_binding @ 21:2..21:27
+          let @ 21:2..21:5
+          identifier @ 21:6..21:10	text
+          := @ 21:11..21:13
+          string_literal @ 21:14..21:27	"hello world"
+        ; @ 21:27..21:28
+      statement @ 23:2..23:22
+        let_binding @ 23:2..23:21
+          let @ 23:2..23:5
+          identifier @ 23:6..23:13	boolean
+          := @ 23:14..23:16
+          boolean_literal @ 23:17..23:21
+            true @ 23:17..23:21
+        ; @ 23:21..23:22
+      statement @ 24:2..24:23
+        let_binding @ 24:2..24:22
+          let @ 24:2..24:5
+          identifier @ 24:6..24:13	boolean
+          := @ 24:14..24:16
+          boolean_literal @ 24:17..24:22
+            false @ 24:17..24:22
+        ; @ 24:22..24:23
       } @ 25:0..25:1
