@@ -13,7 +13,7 @@ fn main() -> Result<()> {
   let mut missing_forbid = 0;
 
   for package in &metadata.packages {
-    if package.name == "toyc-arena" {
+    if package.name == "chipc-ast" {
       continue;
     }
 
