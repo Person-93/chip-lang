@@ -9,9 +9,10 @@ skip_rust_env_info = true
 dependencies = ["generate-parser", "insta"]
 
 [tasks.generate-parser]
-cwd = "./compiler/chipc-ast/grammar"
-command = "yarn"
-args = ["generate"]
+install_crate = { crate_name = "tree-sitter-cli", binary = "tree-sitter", test_arg = "--help" }
+cwd = "./compiler/chipc-ast"
+command = "tree-sitter"
+args = ["generate", "--no-bindings"]
 
 [tasks.insta]
 command = "cargo"

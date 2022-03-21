@@ -3,7 +3,6 @@ name = "chipc-ast"
 version = "0.0.0"
 edition = "2021"
 publish = false
-build = "grammar/bindings/rust/build.rs"
 
 [dependencies]
 tree-sitter = "0.20.6"
