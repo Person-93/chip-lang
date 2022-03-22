@@ -1,40 +1,39 @@
 ---
-source: compiler/chipc-ast/src/lib.rs
-assertion_line: 27
+source: compiler/chipc-ast/src/grammar/tests/mod.rs
+assertion_line: 30
 expression: "print(&tree, &source)"
-input_file: compiler/chipc-ast/src/cases/extern.chip
+input_file: compiler/chipc-ast/src/grammar/tests/cases/extern.chip
 ---
 file @ 0:0..5:0
   extern_block @ 0:0..2:1
     extern @ 0:0..0:6
-    string_literal @ 0:7..0:10	"C"
+    abi:string_literal @ 0:7..0:10	"C"
     { @ 0:11..0:12
-    extern_function @ 1:2..1:20
+    item:extern_function @ 1:2..1:21
       fn @ 1:2..1:4
-      identifier @ 1:5..1:12	foreign
+      name:identifier @ 1:5..1:12	foreign
       ( @ 1:13..1:14
-      identifier @ 1:14..1:15	n
-      : @ 1:15..1:16
-      type @ 1:17..1:19
-        path @ 1:17..1:19
-          path_segment @ 1:17..1:19
-            identifier @ 1:17..1:19	u8
+      input:annotated @ 1:14..1:19
+        identifier @ 1:14..1:15	n
+        : @ 1:15..1:16
+        basic_type @ 1:17..1:19
+          path @ 1:17..1:19
+            segment:identifier @ 1:17..1:19	u8
       ) @ 1:19..1:20
-    ; @ 1:20..1:21
+      ; @ 1:20..1:21
     } @ 2:0..2:1
   function @ 4:0..4:36
-    function_modifier @ 4:0..4:10
+    modifier:function_modifier @ 4:0..4:10
       extern @ 4:0..4:6
-      string_literal @ 4:7..4:10	"C"
+      abi:extern @ 4:7..4:10	"C"
     fn @ 4:11..4:13
-    identifier @ 4:14..4:24	the_answer
+    name:identifier @ 4:14..4:24	the_answer
     ( @ 4:24..4:25
     ) @ 4:25..4:26
     -> @ 4:27..4:29
-    type @ 4:30..4:32
+    output:basic_type @ 4:30..4:32
       path @ 4:30..4:32
-        path_segment @ 4:30..4:32
-          identifier @ 4:30..4:32	u8
+        segment:identifier @ 4:30..4:32	u8
     : @ 4:32..4:33
-    numeric_literal @ 4:34..4:36
-      digits @ 4:34..4:36	42
+    body:numeric_literal @ 4:34..4:36
+      digits:digits @ 4:34..4:36	42

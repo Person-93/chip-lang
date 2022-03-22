@@ -19,6 +19,9 @@ fn main(): {
   let number := 42.0f32;
   let number := 42.0f64;
 
+  let number := 0b10101001;
+  let number := 0xabcdef123
+
   let text := "hello world";
 
   let boolean := true;

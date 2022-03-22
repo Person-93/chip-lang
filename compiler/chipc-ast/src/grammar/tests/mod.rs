@@ -22,13 +22,13 @@ fn snapshot() {
     .expect("assign language to parser");
 
   glob!("cases/*.chip", |path| {
-      parser.reset();
-      let source = fs::read_to_string(path).expect("read snapshot test case");
-      let tree = parser
-        .parse(&source, None)
-        .expect("parse snapshot test case");
-      assert_snapshot!(print(&tree, &source));
-    });
+    parser.reset();
+    let source = fs::read_to_string(path).expect("read snapshot test case");
+    let tree = parser
+      .parse(&source, None)
+      .expect("parse snapshot test case");
+    assert_snapshot!(print(&tree, &source));
+  });
 }
 
 pub fn print(tree: &Tree, source: &str) -> String {
@@ -51,17 +51,32 @@ trait NodePrinter: Write {
   ) -> fmt::Result {
     let node = cursor.node();
     let kind = node.kind();
+    let field_name = cursor.field_name();
     let Point { row, column } = node.start_position();
     let Point {
       row: end_row,
       column: end_column,
     } = node.end_position();
 
-    self.indent(indentation)?;
-    write!(self, "{kind} @ {row}:{column}..{end_row}:{end_column}")?;
-    if node.is_named() && node.child_count() == 0 {
-      write!(self, "\t{}", node.utf8_text(source.as_bytes()).unwrap())?;
+    for _ in 0..indentation {
+      write!(self, "  ")?;
     }
+    if node.is_missing() {
+      write!(self, "MISSING ")?;
+    }
+    if let Some(field_name) = field_name {
+      write!(self, "{field_name}:")?;
+    }
+    write!(self, "{kind}")?;
+    write!(self, " @ {row}:{column}..{end_row}:{end_column}")?;
+
+    if (node.is_named() || field_name.is_some()) && node.child_count() == 0 {
+      let value = node.utf8_text(source.as_bytes()).unwrap();
+      if kind != value {
+        write!(self, "\t{}", node.utf8_text(source.as_bytes()).unwrap())?;
+      }
+    }
+
     writeln!(self)?;
 
     if cursor.goto_first_child() {
@@ -71,13 +86,6 @@ trait NodePrinter: Write {
       }
     }
 
-    Ok(())
-  }
-
-  fn indent(&mut self, indentation: u8) -> fmt::Result {
-    for _ in 0..indentation {
-      write!(self, "  ")?;
-    }
     Ok(())
   }
 }

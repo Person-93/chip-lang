@@ -24,14 +24,30 @@ module.exports = grammar({
 
   word: $ => $.word,
 
-  rules: {
-    file: $ => seq(repeat($._inner_attribute), repeat($._item)),
+  inline: $ => [
+    $.attr_data_value,
+    $.expr,
+    $.extern_item,
+    $.generic_args,
+    $.generic_params,
+    $.inner_attribute,
+    $.inputs,
+    $.item,
+    $.literal,
+    $.outer_attribute,
+    $.output,
+    $.type,
+  ],
 
-    _item: $ => choice(
+  conflicts: $ => [],
+
+  rules: {
+    file: $ => seq(repeat($.inner_attribute), repeat($.item)),
+
+    item: $ => choice(
       $.function,
       $.extern_block,
       // TODO other items
-      //  - top-level attrs
       //  - static items (including constants)
       //  - imports
       //  - ADTs
@@ -40,92 +56,144 @@ module.exports = grammar({
     ),
 
 
-    _inner_attribute: $ => seq("#^[", $.attr, "]"),
-    _outer_attribute: $ => seq("#[", $.attr, "]"),
+    inner_attribute: $ => seq("#^[", $.attr, "]"),
+    outer_attribute: $ => seq("#[", $.attr, "]"),
     attr: $ => seq(
       $.path,
       optional(choice(
-        seq("=", field("value", $._attr_data_value)),
-        seq(
-          "(",
-          field("args", sepBy(",", $._attr_data_value)),
-          ")",
-        ),
+        seq("=", field("value", $.attr_data_value)),
+        parenthesized(sepBy(",", field("arg", $.attr_data_value))),
       )),
     ),
-    _attr_data_value: $ => choice(
-      $._literal,
+    attr_data_value: $ => choice(
+      $.literal,
       $.attr,
     ),
 
 
     function: $ => seq(
-      repeat($._outer_attribute),
-      optional($.visibility_modifier),
-      optional($.function_modifier),
+      repeat($.outer_attribute),
+      optional(field("vis", $.visibility_modifier)),
+      optional(field("modifier", $.function_modifier)),
       "fn",
       // TODO generic params
       field("name", $.identifier),
-      "(",
-      field(
-        "inputs",
-        sepBy(",", seq(
-          field("identifier", $.identifier),
-          ":",
-          field("type", $.type),
-        )),
-      ),
-      ")",
-      optional(seq("->", field("output", $.type))),
+      $.inputs,
+      optional($.output),
       ":",
-      field("body", $._expr),
+      field("body", $.expr),
     ),
     function_modifier: $ => choice(
       "const",
       "unsafe",
-      seq("extern", field("abi", optional($.string_literal))),
+      alias(
+        seq("extern", optional(field("abi", $.string_literal))),
+        $.extern,
+      ),
     ),
 
-
-    type: $ => $.path,
 
     extern_block: $ => seq(
       "extern",
-      field("abi", optional($.string_literal)),
-      "{",
-      repeat($._extern_item),
-      "}",
+      optional(field("abi", $.string_literal)),
+      braced(repeat(field("item", $.extern_item))),
     ),
-    _extern_item: $ => seq(choice($.extern_function), ";"),
+    extern_item: $ => choice($.extern_function),
     extern_function: $ => seq(
-      optional($.visibility_modifier),
+      optional(field("vis", $.visibility_modifier)),
       "fn",
       field("name", $.identifier),
-      "(",
-      field(
-        "inputs",
-        sepBy(",", seq(
-          field("identifier", $.identifier),
-          ":",
-          field("type", $.type),
-        )),
-      ),
-      ")",
-      optional(seq("->", field("output", $.type))),
+      $.inputs,
+      optional($.output),
+      ";"
     ),
+
+
+    inputs: $ => parenthesized(sepBy(",", field("input", $.annotated))),
+    annotated: $ => seq($.identifier, ":", $.type),
+
+    output: $ => seq("->", field("output", $.type)),
 
 
     visibility_modifier: $ => seq(
       "pub",
-      optional(seq("(",
+      optional(parenthesized(
         field("restriction", choice("super", "package")),
-        ")"),
-      ),
+      )),
     ),
 
 
-    _expr: $ => choice(
-      $._literal,
+    type: $ => choice(
+      $.basic_type,
+      $.tuple_type,
+      $.function_type,
+      "Self",
+    ),
+
+    basic_type: $ => seq($.path, optional($.generic_args)),
+
+    unit_type: $ => token(seq("(", ")")),
+
+    tuple_type: $ => parenthesized(sepBy1(",", $.type)),
+
+    function_type: $ => seq(
+      $.function_modifier,
+      "fn",
+      parenthesized(sepBy(",", field("input", $.type))),
+      optional(seq("->", field("output", $.type)))
+    ),
+
+    type_projection: $ => seq(
+      field("base", $.type),
+      "::",
+      $.identifier,
+      optional($.generic_args),
+    ),
+
+    generic_params: $ => seq("<", sepBy1(",", $.generic_param), ">"),
+
+    generic_param: $ => choice(
+      seq(
+        "const",
+        field("name", $.identifier),
+        ":",
+        $.type,
+        optional(seq("=", field("default", $.expr))),
+      ),
+      seq(
+        field("name", $.identifier),
+        optional(seq("=", field("default", $.type))),
+      ),
+    ),
+
+    generic_args: $ => seq(
+      "::<",
+      sepBy1(
+        ",",
+        choice(
+          $.infer,
+          field("value", $.expr),
+        )
+      ),
+      ">",
+    ),
+
+    path: $ => seq(
+      choice(
+        seq(optional("::"), field("segment", $.identifier)),
+        "package",
+        "self",
+        sepBy1("::", "super", false),
+      ),
+      optional(seq(
+        "::",
+        sepBy1("::", field("segment", $.identifier), false),
+      )),
+    ),
+
+
+    expr: $ => choice(
+      $.literal,
       $.tuple_expression,
       $.codeblock,
       // TODO unary operation
@@ -133,52 +201,69 @@ module.exports = grammar({
       // TODO member access
       // TODO cast operation
     ),
-    codeblock: $ => seq(
-      "{",
-      repeat($.statement),
-      field("trailing", optional($._expr)),
-      "}",
-    ),
-    statement: $ => seq(choice($._expr, $.let_binding), ";"),
 
-    tuple_expression: $ => seq(
-      "(",
-      field("members", sepBy1(",", $._expr)),
-      ")",
+    codeblock: $ => braced(seq(
+      repeat($.statement),
+      field("trailing", optional($.expr)),
+    )),
+
+    statement: $ => seq(optional(choice($.let_binding, $.expr)), ";"),
+
+    tuple_expression: $ => parenthesized(
+      sepBy(",", field("member", $.expr)),
     ),
 
     let_binding: $ => seq(
       "let",
       $.identifier,
+      optional(seq(":", $.type)),
       ":=",
-      field("value", $._expr),
+      field("value", $.expr),
     ),
 
 
-    path: $ => seq(optional("::"), sepBy1("::", $.path_segment, false)),
-    path_segment: $ => seq($.identifier, optional($.generic_params)),
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
-    generic_params: $ => seq("::<", sepBy1(",", $._expr), ">"),
 
 
-    _literal: $ => choice(
-      $.unit_literal,
+    infer: $ => "_",
+
+
+    literal: $ => choice(
       $.string_literal,
       $.boolean_literal,
       $.numeric_literal,
     ),
-    unit_literal: $ => token(seq("(", ")")),
-    string_literal: $ => /"[^"]*"/, // TODO handle escape sequence in string literal
+    string_literal: $ => /"[^"]*"/,
+    // TODO more robust string literals
+    //  - multiline
+    //  - unescaped?
+    //  - with quotes
     boolean_literal: $ => choice("true", "false"),
     numeric_literal: $ => seq(
-      field("value", $.digits),
-      optional(seq(".", field("float_part", $.digits))),
+      choice(
+        seq(
+          field("digits", $.digits),
+          optional(seq(".", field("float_part", $.digits))),
+        ),
+        seq(
+          field("prefix", "0x"),
+          field("digits", $.hex_digits),
+          optional(seq(".", field("float_part", $.hex_digits))),
+        ),
+        seq(
+          field("prefix", "0b"),
+          field("digits", $.bin_digits),
+          optional(seq(".", field("float_part", $.bin_digits))),
+        ),
+      ),
       field("suffix", optional(choice(...NUMERIC_TYPES))),
     ),
     digits: $ => /\d+/,
+    bin_digits: $ => /[01]+/,
+    hex_digits: $ => /[\da-f]+/,
 
 
-    word: $ => /[_\p{XID_Start}][_\p{XID_Continue}]*/
+    word: $ => /[_\p{XID_Start}][_\p{XID_Continue}]*/,
   },
 });
 
@@ -190,4 +275,16 @@ function sepBy1(sep, rule, trailing = true) {
   return trailing ?
     seq(rule, repeat(seq(sep, rule)), optional(sep)) :
     seq(rule, repeat(seq(sep, rule)));
+}
+
+function parenthesized(rule) {
+  return seq("(", rule, ")");
+}
+
+function bracketed(rule) {
+  return seq("[", rule, "]");
+}
+
+function braced(rule) {
+  return seq("{", rule, "}");
 }
