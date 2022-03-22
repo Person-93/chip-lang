@@ -1,18 +1,7 @@
 use crate::grammar;
-use insta::{assert_snapshot, glob};
-use std::{
-  fmt::{self, Write},
-  fs,
-};
+use insta::assert_snapshot;
+use std::fmt::{self, Write};
 use tree_sitter::{Parser, Point, Tree, TreeCursor};
-
-#[test]
-fn test_can_load_grammar() {
-  let mut parser = tree_sitter::Parser::new();
-  parser
-    .set_language(super::language())
-    .expect("Error loading chip language");
-}
 
 #[test]
 fn snapshot() {
@@ -21,9 +10,8 @@ fn snapshot() {
     .set_language(grammar::language())
     .expect("assign language to parser");
 
-  glob!("cases/*.chip", |path| {
+  crate::test_util::run_cases(|source| {
     parser.reset();
-    let source = fs::read_to_string(path).expect("read snapshot test case");
     let tree = parser
       .parse(&source, None)
       .expect("parse snapshot test case");
