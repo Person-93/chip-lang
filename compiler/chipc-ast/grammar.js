@@ -1,10 +1,13 @@
-const INT_TYPES = [
+const UNSIGNED_TYPES = [
   "u8",
   "u16",
   "u32",
   "u64",
   "u128",
   "usize",
+];
+
+const SIGNED_TYPES = [
   "i8",
   "i16",
   "i32",
@@ -12,6 +15,8 @@ const INT_TYPES = [
   "i128",
   "isize",
 ];
+
+const INT_TYPES = [...UNSIGNED_TYPES, ...SIGNED_TYPES];
 
 const FLOAT_TYPES = ["f32", "f64"];
 
@@ -22,7 +27,7 @@ module.exports = grammar({
 
   extras: $ => [/\s/], // TODO add line comments and block comments
 
-  word: $ => $.word,
+  word: $ => $.identifier,
 
   inline: $ => [
     $.attr_data_value,
@@ -104,7 +109,7 @@ module.exports = grammar({
       "fn",
       field("name", $.identifier),
       $.inputs,
-      optional($.output),
+      optional(field("output", $.output)),
       ";"
     ),
 
@@ -118,13 +123,14 @@ module.exports = grammar({
     visibility_modifier: $ => seq(
       "pub",
       optional(parenthesized(
-        field("restriction", choice("super", "package")),
+        field("restriction", choice("self", "super", "package")),
       )),
     ),
 
 
     type: $ => choice(
       $.basic_type,
+      $.unit_type,
       $.tuple_type,
       $.function_type,
       "Self",
@@ -134,10 +140,10 @@ module.exports = grammar({
 
     unit_type: $ => token(seq("(", ")")),
 
-    tuple_type: $ => parenthesized(sepBy1(",", $.type)),
+    tuple_type: $ => parenthesized(sepBy1(",", field("element", $.type))),
 
     function_type: $ => seq(
-      $.function_modifier,
+      field("modifier", $.function_modifier),
       "fn",
       parenthesized(sepBy(",", field("input", $.type))),
       optional(seq("->", field("output", $.type)))
@@ -170,20 +176,20 @@ module.exports = grammar({
       "::<",
       sepBy1(
         ",",
-        choice(
-          $.infer,
-          field("value", $.expr),
-        )
+        field("generic_arg", choice($.infer, $.expr)),
       ),
       ">",
     ),
 
     path: $ => seq(
       choice(
-        seq(optional("::"), field("segment", $.identifier)),
-        "package",
-        "self",
-        sepBy1("::", "super", false),
+        seq(
+          optional(field("rooted", "::")),
+          field("first_segment", $.identifier),
+        ),
+        named_literal("package"),
+        named_literal("self"),
+        sepBy1("::", named_literal("super"), false),
       ),
       optional(seq(
         "::",
@@ -196,6 +202,8 @@ module.exports = grammar({
       $.literal,
       $.tuple_expression,
       $.codeblock,
+      $.basic_type,
+      $.unit_type,
       // TODO unary operation
       // TODO binary operation
       // TODO member access
@@ -207,22 +215,22 @@ module.exports = grammar({
       field("trailing", optional($.expr)),
     )),
 
-    statement: $ => seq(optional(choice($.let_binding, $.expr)), ";"),
+    statement: $ => seq(
+      optional(choice($.let_binding, $.expr)),
+      ";",
+    ),
 
     tuple_expression: $ => parenthesized(
-      sepBy(",", field("member", $.expr)),
+      sepBy(",", field("element", $.expr)),
     ),
 
     let_binding: $ => seq(
       "let",
       $.identifier,
-      optional(seq(":", $.type)),
+      optional(seq(":", field("type", $.type))),
       ":=",
       field("value", $.expr),
     ),
-
-
-    identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
 
     infer: $ => "_",
@@ -263,28 +271,72 @@ module.exports = grammar({
     hex_digits: $ => /[\da-f]+/,
 
 
-    word: $ => /[_\p{XID_Start}][_\p{XID_Continue}]*/,
+    identifier: $ => /[_\p{XID_Start}][_\p{XID_Continue}]*/,
   },
 });
 
+/**
+ * Create a rule that matches <i>zero</i> or more items separated by a given token
+ *
+ * @param {string} sep - The token that separates the items.
+ * @param {RuleOrLiteral} rule - The item in the list.
+ * @param {boolean} trailing - Is a trailing separator permitted?
+ * @returns {ChoiceRule}
+ */
 function sepBy(sep, rule, trailing = true) {
   return optional(sepBy1(sep, rule, trailing));
 }
 
+/**
+ * Create a rule that matches <i>one</i> or more items separated by a given token.
+ *
+ * @param {string} sep - The token that separates the items.
+ * @param {RuleOrLiteral} rule - The item in the list.
+ * @param {boolean} trailing - Is a trailing separator permitted?
+ * @returns {SeqRule}
+ */
 function sepBy1(sep, rule, trailing = true) {
   return trailing ?
     seq(rule, repeat(seq(sep, rule)), optional(sep)) :
     seq(rule, repeat(seq(sep, rule)));
 }
 
+/**
+ * Create a rule that matches the given rule in parentheses.
+ *
+ * @param {RuleOrLiteral} rule
+ * @returns {SeqRule}
+ */
 function parenthesized(rule) {
   return seq("(", rule, ")");
 }
 
+/**
+ * Create a rule that matches the given rule in brackets.
+ *
+ * @param {RuleOrLiteral} rule
+ * @returns {SeqRule}
+ */
 function bracketed(rule) {
   return seq("[", rule, "]");
 }
 
+/**
+ * Create a rule that matches the given rule in braces.
+ *
+ * @param {RuleOrLiteral} rule
+ * @returns {SeqRule}
+ */
 function braced(rule) {
   return seq("{", rule, "}");
+}
+
+/**
+ * Create a named field that matches the name of the field.
+ *
+ * @param {string} name
+ * @returns {FieldRule}
+ */
+function named_literal(name) {
+  return field(name, name);
 }

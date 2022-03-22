@@ -1,8 +1,8 @@
 ---
-source: compiler/chipc-ast/src/grammar/tests/mod.rs
-assertion_line: 30
+source: compiler/chipc-ast/src/grammar/tests.rs
+assertion_line: 18
 expression: "print(&tree, &source)"
-input_file: compiler/chipc-ast/src/grammar/tests/cases/literals.chip
+input_file: compiler/chipc-ast/src/test_util/cases/literals.chip
 ---
 file @ 0:0..29:0
   function @ 0:0..28:1
@@ -188,7 +188,7 @@ file @ 0:0..29:0
             prefix:0b @ 21:16..21:18
             digits:bin_digits @ 21:18..21:26	10101001
         ; @ 21:26..21:27
-      statement @ 22:2..24:28
+      statement @ 22:2..22:28
         let_binding @ 22:2..22:27
           let @ 22:2..22:5
           identifier @ 22:6..22:12	number
@@ -196,11 +196,13 @@ file @ 0:0..29:0
           value:numeric_literal @ 22:16..22:27
             prefix:0x @ 22:16..22:18
             digits:hex_digits @ 22:18..22:27	abcdef123
-        ERROR @ 24:2..24:27
-          word @ 24:2..24:5	let
-          word @ 24:6..24:10	text
+        ; @ 22:27..22:28
+      statement @ 24:2..24:28
+        let_binding @ 24:2..24:27
+          let @ 24:2..24:5
+          identifier @ 24:6..24:10	text
           := @ 24:11..24:13
-          string_literal @ 24:14..24:27	"hello world"
+          value:string_literal @ 24:14..24:27	"hello world"
         ; @ 24:27..24:28
       statement @ 26:2..26:22
         let_binding @ 26:2..26:21

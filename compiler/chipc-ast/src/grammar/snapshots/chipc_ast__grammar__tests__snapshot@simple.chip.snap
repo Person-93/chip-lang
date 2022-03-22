@@ -1,8 +1,8 @@
 ---
-source: compiler/chipc-ast/src/grammar/tests/mod.rs
-assertion_line: 30
+source: compiler/chipc-ast/src/grammar/tests.rs
+assertion_line: 18
 expression: "print(&tree, &source)"
-input_file: compiler/chipc-ast/src/grammar/tests/cases/simple.chip
+input_file: compiler/chipc-ast/src/test_util/cases/simple.chip
 ---
 file @ 0:0..1:0
   function @ 0:0..0:10
@@ -11,6 +11,4 @@ file @ 0:0..1:0
     ( @ 0:4..0:5
     ) @ 0:5..0:6
     : @ 0:6..0:7
-    body:tuple_expression @ 0:8..0:10
-      ( @ 0:8..0:9
-      ) @ 0:9..0:10
+    body:unit_type @ 0:8..0:10	()

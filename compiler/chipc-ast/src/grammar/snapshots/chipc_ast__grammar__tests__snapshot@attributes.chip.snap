@@ -1,105 +1,109 @@
 ---
-source: compiler/chipc-ast/src/grammar/tests/mod.rs
-assertion_line: 30
-expression: "print(&tree, &source)"
-input_file: compiler/chipc-ast/src/grammar/tests/cases/attributes.chip
+source: compiler/chipc-ast/src/grammar/tests.rs
+assertion_line: 18
+expression: "print(&tree, &source).trim()"
+input_file: compiler/chipc-ast/src/test_util/cases/attributes.chip
 ---
-file @ 0:0..10:0
+file @ 0:0..11:0
   #^[ @ 0:0..0:3
   attr @ 0:3..0:9
     path @ 0:3..0:9
-      segment:identifier @ 0:3..0:9	simple
+      first_segment:identifier @ 0:3..0:9	simple
   ] @ 0:9..0:10
   #^[ @ 1:0..1:3
-  attr @ 1:3..1:22
-    path @ 1:3..1:22
-      segment:identifier @ 1:3..1:7	attr
-      :: @ 1:7..1:9
-      segment:identifier @ 1:9..1:13	with
-      :: @ 1:13..1:15
-      segment:identifier @ 1:15..1:16	a
-      :: @ 1:16..1:18
-      segment:identifier @ 1:18..1:22	path
-  ] @ 1:22..1:23
+  attr @ 1:3..1:9
+    path @ 1:3..1:9
+      rooted::: @ 1:3..1:5
+      first_segment:identifier @ 1:5..1:9	attr
+  ] @ 1:9..1:10
   #^[ @ 2:0..2:3
-  attr @ 2:3..2:19
-    path @ 2:3..2:9
-      segment:identifier @ 2:3..2:9	string
-    = @ 2:10..2:11
-    value:string_literal @ 2:12..2:19	"hello"
-  ] @ 2:19..2:20
+  attr @ 2:3..2:22
+    path @ 2:3..2:22
+      first_segment:identifier @ 2:3..2:7	attr
+      :: @ 2:7..2:9
+      segment:identifier @ 2:9..2:13	with
+      :: @ 2:13..2:15
+      segment:identifier @ 2:15..2:16	a
+      :: @ 2:16..2:18
+      segment:identifier @ 2:18..2:22	path
+  ] @ 2:22..2:23
   #^[ @ 3:0..3:3
-  attr @ 3:3..3:9
-    path @ 3:3..3:4
-      segment:identifier @ 3:3..3:4	n
-    = @ 3:5..3:6
-    value:numeric_literal @ 3:7..3:9
-      digits:digits @ 3:7..3:9	42
-  ] @ 3:9..3:10
+  attr @ 3:3..3:19
+    path @ 3:3..3:9
+      first_segment:identifier @ 3:3..3:9	string
+    = @ 3:10..3:11
+    value:string_literal @ 3:12..3:19	"hello"
+  ] @ 3:19..3:20
   #^[ @ 4:0..4:3
-  attr @ 4:3..4:11
+  attr @ 4:3..4:9
     path @ 4:3..4:4
-      segment:identifier @ 4:3..4:4	b
+      first_segment:identifier @ 4:3..4:4	n
     = @ 4:5..4:6
-    value:attr @ 4:7..4:11
-      path @ 4:7..4:11
-        segment:identifier @ 4:7..4:11	true
-  ] @ 4:11..4:12
+    value:numeric_literal @ 4:7..4:9
+      digits:digits @ 4:7..4:9	42
+  ] @ 4:9..4:10
   #^[ @ 5:0..5:3
-  attr @ 5:3..5:32
-    path @ 5:3..5:7
-      segment:identifier @ 5:3..5:7	call
-    ( @ 5:7..5:8
-    arg:string_literal @ 5:8..5:14	"arg0"
-    , @ 5:14..5:15
-    arg:attr @ 5:16..5:20
-      path @ 5:16..5:20
-        segment:identifier @ 5:16..5:20	arg1
-    , @ 5:20..5:21
-    arg:numeric_literal @ 5:22..5:24
-      digits:digits @ 5:22..5:24	42
-    , @ 5:24..5:25
-    arg:attr @ 5:26..5:31
-      path @ 5:26..5:31
-        segment:identifier @ 5:26..5:31	false
-    ) @ 5:31..5:32
-  ] @ 5:32..5:33
+  attr @ 5:3..5:11
+    path @ 5:3..5:4
+      first_segment:identifier @ 5:3..5:4	b
+    = @ 5:5..5:6
+    value:boolean_literal @ 5:7..5:11
+      true @ 5:7..5:11
+  ] @ 5:11..5:12
   #^[ @ 6:0..6:3
-  attr @ 6:3..6:41
+  attr @ 6:3..6:32
     path @ 6:3..6:7
-      segment:identifier @ 6:3..6:7	call
+      first_segment:identifier @ 6:3..6:7	call
     ( @ 6:7..6:8
-    arg:attr @ 6:8..6:11
-      path @ 6:8..6:11
-        segment:identifier @ 6:8..6:11	arg
-    , @ 6:11..6:12
-    arg:attr @ 6:13..6:25
-      path @ 6:13..6:19
-        segment:identifier @ 6:13..6:19	nested
-      ( @ 6:19..6:20
-      arg:attr @ 6:20..6:24
-        path @ 6:20..6:24
-          segment:identifier @ 6:20..6:24	call
-      ) @ 6:24..6:25
-    , @ 6:25..6:26
-    arg:attr @ 6:27..6:40
-      path @ 6:27..6:31
-        segment:identifier @ 6:27..6:31	this
-      = @ 6:32..6:33
-      value:string_literal @ 6:34..6:40	"that"
-    ) @ 6:40..6:41
-  ] @ 6:41..6:42
-  function @ 8:0..9:22
-    #[ @ 8:0..8:2
-    attr @ 8:2..8:11
-      path @ 8:2..8:11
-        segment:identifier @ 8:2..8:11	some_attr
-    ] @ 8:11..8:12
-    fn @ 9:0..9:2
-    name:identifier @ 9:3..9:16	fn_with_attrs
-    ( @ 9:16..9:17
-    ) @ 9:17..9:18
-    : @ 9:18..9:19
-    body:codeblock @ 9:20..9:22
-      { @ 9:20..9:21
-      } @ 9:21..9:22
+    arg:string_literal @ 6:8..6:14	"arg0"
+    , @ 6:14..6:15
+    arg:attr @ 6:16..6:20
+      path @ 6:16..6:20
+        first_segment:identifier @ 6:16..6:20	arg1
+    , @ 6:20..6:21
+    arg:numeric_literal @ 6:22..6:24
+      digits:digits @ 6:22..6:24	42
+    , @ 6:24..6:25
+    arg:boolean_literal @ 6:26..6:31
+      false @ 6:26..6:31
+    ) @ 6:31..6:32
+  ] @ 6:32..6:33
+  #^[ @ 7:0..7:3
+  attr @ 7:3..7:43
+    path @ 7:3..7:8
+      first_segment:identifier @ 7:3..7:8	call2
+    ( @ 7:8..7:9
+    arg:attr @ 7:9..7:13
+      path @ 7:9..7:13
+        first_segment:identifier @ 7:9..7:13	arg0
+    , @ 7:13..7:14
+    arg:attr @ 7:15..7:27
+      path @ 7:15..7:21
+        first_segment:identifier @ 7:15..7:21	nested
+      ( @ 7:21..7:22
+      arg:attr @ 7:22..7:26
+        path @ 7:22..7:26
+          first_segment:identifier @ 7:22..7:26	call
+      ) @ 7:26..7:27
+    , @ 7:27..7:28
+    arg:attr @ 7:29..7:42
+      path @ 7:29..7:33
+        first_segment:identifier @ 7:29..7:33	this
+      = @ 7:34..7:35
+      value:string_literal @ 7:36..7:42	"that"
+    ) @ 7:42..7:43
+  ] @ 7:43..7:44
+  function @ 9:0..10:22
+    #[ @ 9:0..9:2
+    attr @ 9:2..9:11
+      path @ 9:2..9:11
+        first_segment:identifier @ 9:2..9:11	some_attr
+    ] @ 9:11..9:12
+    fn @ 10:0..10:2
+    name:identifier @ 10:3..10:16	fn_with_attrs
+    ( @ 10:16..10:17
+    ) @ 10:17..10:18
+    : @ 10:18..10:19
+    body:codeblock @ 10:20..10:22
+      { @ 10:20..10:21
+      } @ 10:21..10:22

@@ -1,10 +1,11 @@
 #^[simple]
+#^[::attr]
 #^[attr::with::a::path]
 #^[string = "hello"]
 #^[n = 42]
 #^[b = true]
 #^[call("arg0", arg1, 42, false)]
-#^[call(arg, nested(call), this = "that")]
+#^[call2(arg0, nested(call), this = "that")]
 
 #[some_attr]
 fn fn_with_attrs(): {}

@@ -1,0 +1,19 @@
+---
+source: compiler/chipc-ast/src/ast/tests.rs
+assertion_line: 11
+expression: printer.0.trim()
+input_file: compiler/chipc-ast/src/test_util/cases/extern.chip
+---
+file
+  extern block
+    extern function
+      name: foreign
+      input: n
+        type: basic
+          path: u8
+  function
+    name: the_answer
+    modifier: extern
+    output: basic
+      path: u8
+    body: num_lit: 42

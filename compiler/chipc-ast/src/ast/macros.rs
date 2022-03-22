@@ -18,6 +18,7 @@ macro_rules! ast_node_impl {
     struct $name:ident $kind:literal
   ) => {
     $(#[$attr])*
+    #[derive(Copy, Clone)]
     pub struct $name<'ast>(Node<'ast>);
 
     impl<'ast> AstNode<'ast> for $name<'ast> {
@@ -43,6 +44,7 @@ macro_rules! ast_node_impl {
     }
   ) => {
     $(#[$attr])*
+    #[derive(Clone)]
     pub enum $name<'ast> {
       $(
         $(#[$variant_attr])*
@@ -72,6 +74,7 @@ macro_rules! keywords {
     $($name:ident $symbol:literal)*
   ) => {
     $(
+      #[derive(Copy, Clone)]
       pub struct $name<'ast>(Node<'ast>);
 
       impl<'ast> $name<'ast> {
@@ -110,6 +113,10 @@ macro_rules! forward_to_node {
       pub fn end_byte(&self) -> usize {
         self.node().end_byte()
       }
+
+      pub fn byte_range(&self) -> std::ops::Range<usize> {
+        self.node().byte_range()
+      }
     }
   };
 }
@@ -143,8 +150,20 @@ macro_rules! typed_iter_dispatch {
     typed_iter_impl! {
       $vis $name $type
       |cursor: &TreeCursor<'ast>| {
-        matches!(cursor.field_name(), Some(name) if name == $field)
-          .then(|| $type::new(cursor.node()).unwrap())
+        match cursor.field_name() {
+          Some(name) if name == $field => {
+            let node = cursor.node();
+            Some($type::new(node).unwrap_or_else(|| {
+              panic!(
+                "unexpected node `{}` in field `{}` creating {}",
+                node.kind(),
+                $field,
+                type_name::<Self::Item>(),
+              );
+            }))
+          }
+          _ => None,
+        }
       }
     }
   };
@@ -156,6 +175,7 @@ macro_rules! typed_iter_impl {
     $vis:vis $name:ident $type:ident $mapping:expr
   ) => {
     $([$attr])*
+    #[derive(Clone)]
     $vis struct $name<'ast> {
       cursor: Option<TreeCursor<'ast>>,
       parent: Node<'ast>,

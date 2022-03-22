@@ -1,0 +1,49 @@
+---
+source: compiler/chipc-ast/src/ast/tests.rs
+assertion_line: 11
+expression: printer.0.trim()
+input_file: compiler/chipc-ast/src/test_util/cases/attributes.chip
+---
+file
+  attr
+    path: simple
+  attr
+    path: rooted: attr
+  attr
+    path
+      first_segment: attr
+      segment: with
+      segment: a
+      segment: path
+  attr
+    path: string
+    assign: str_lit: "hello"
+  attr
+    path: n
+    assign: num_lit: 42
+  attr
+    path: b
+    assign: bool_lit: true
+  attr
+    path: call
+    arg: str_lit: "arg0"
+    arg
+      path: arg1
+    arg: num_lit: 42
+    arg: bool_lit: false
+  attr
+    path: call2
+    arg
+      path: arg0
+    arg
+      path: nested
+      arg
+        path: call
+    arg
+      path: this
+      assign: str_lit: "that"
+  function
+    name: fn_with_attrs
+    attr
+      path: some_attr
+    body: codeblock

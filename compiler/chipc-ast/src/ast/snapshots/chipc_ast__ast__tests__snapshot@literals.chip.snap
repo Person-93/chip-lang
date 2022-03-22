@@ -1,0 +1,119 @@
+---
+source: compiler/chipc-ast/src/ast/tests.rs
+assertion_line: 11
+expression: printer.0.trim()
+input_file: compiler/chipc-ast/src/test_util/cases/literals.chip
+---
+file
+  function
+    name: main
+    body: codeblock
+      statement: let_binding
+        ident: number
+        value: num_lit: 42
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: u8
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: u16
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: u32
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: u64
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: u128
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: usize
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: i8
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: i16
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: i32
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: i64
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: i128
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: isize
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: f32
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          suffix: f64
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          float_part: 0
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          float_part: 0
+          suffix: f32
+      statement: let_binding
+        ident: number
+        value: num_lit
+          digits: 42
+          float_part: 0
+          suffix: f64
+      statement: let_binding
+        ident: number
+        value: num_lit
+          prefix: 0b
+          digits: 10101001
+      statement: let_binding
+        ident: number
+        value: num_lit
+          prefix: 0x
+          digits: abcdef123
+      statement: let_binding
+        ident: text
+        value: str_lit: "hello world"
+      statement: let_binding
+        ident: boolean
+        value: bool_lit: true
+      statement: let_binding
+        ident: boolean
+        value: bool_lit: false

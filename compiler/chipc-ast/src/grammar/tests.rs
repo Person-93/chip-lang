@@ -15,7 +15,7 @@ fn snapshot() {
     let tree = parser
       .parse(&source, None)
       .expect("parse snapshot test case");
-    assert_snapshot!(print(&tree, &source));
+    assert_snapshot!(print(&tree, &source).trim());
   });
 }
 

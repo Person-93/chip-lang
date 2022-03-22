@@ -1,0 +1,7 @@
+---
+source: compiler/chipc-ast/src/ast/tests.rs
+assertion_line: 11
+expression: printer.0
+input_file: compiler/chipc-ast/src/test_util/cases/empty.chip
+---
+file

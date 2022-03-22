@@ -1,8 +1,8 @@
 ---
-source: compiler/chipc-ast/src/grammar/tests/mod.rs
-assertion_line: 30
-expression: "print(&tree, &source)"
-input_file: compiler/chipc-ast/src/grammar/tests/cases/extern.chip
+source: compiler/chipc-ast/src/grammar/tests.rs
+assertion_line: 18
+expression: "print(&tree, &source).trim()"
+input_file: compiler/chipc-ast/src/test_util/cases/extern.chip
 ---
 file @ 0:0..5:0
   extern_block @ 0:0..2:1
@@ -18,7 +18,7 @@ file @ 0:0..5:0
         : @ 1:15..1:16
         basic_type @ 1:17..1:19
           path @ 1:17..1:19
-            segment:identifier @ 1:17..1:19	u8
+            first_segment:identifier @ 1:17..1:19	u8
       ) @ 1:19..1:20
       ; @ 1:20..1:21
     } @ 2:0..2:1
@@ -33,7 +33,7 @@ file @ 0:0..5:0
     -> @ 4:27..4:29
     output:basic_type @ 4:30..4:32
       path @ 4:30..4:32
-        segment:identifier @ 4:30..4:32	u8
+        first_segment:identifier @ 4:30..4:32	u8
     : @ 4:32..4:33
     body:numeric_literal @ 4:34..4:36
       digits:digits @ 4:34..4:36	42

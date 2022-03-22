@@ -1,16 +1,20 @@
-use std::str;
+use std::{any::type_name, str};
 use tree_sitter::{Node, Parser, Point, Tree, TreeCursor};
 
 #[macro_use]
 mod macros;
+#[cfg(test)]
+mod tests;
 
 pub struct Ast(Tree);
 
 impl Ast {
   pub fn parse(source: &str) -> Self {
     let mut parser = Parser::new();
-    parser.set_language(crate::grammar::language()).unwrap();
-    Self::new(parser.parse(source, None).unwrap())
+    parser
+      .set_language(crate::grammar::language())
+      .expect("failed loading grammar");
+    Self::new(parser.parse(source, None).expect("failed parsing source"))
   }
 
   pub fn new(tree: Tree) -> Self {
@@ -18,12 +22,12 @@ impl Ast {
   }
 
   pub fn root(&self) -> File {
-    File::new(self.0.root_node()).unwrap()
+    File::new(self.0.root_node()).expect("failed extracting root AST node")
   }
 }
 
 ast_nodes! {
-  pub struct File ""
+  pub struct File "file"
   pub enum Item {
     Function(Function),
     ExternBlock(ExternBlock),
@@ -42,30 +46,39 @@ ast_nodes! {
   }
   pub struct ExternFunction "extern_function"
   pub struct Visibility "visibility_modifier"
-  pub struct Path "path"
-  pub struct PathSegment "segment"
-  pub struct Attribute "attr"
-  pub enum AttrData {
-    Assign(AttrDataValue),
-    Call(AttrArgIter),
+  pub enum VisibilityRestriction {
+    Selph(KwSelfWord),
+    Super(KwSuper),
+    Package(KwPackage),
   }
+  pub struct Path "path"
+  pub enum GenericArg {
+    Infer(KwInfer),
+    Expr(Expr),
+  }
+  pub struct Attribute "attr"
   pub enum AttrDataValue {
     Literal(Literal),
-    Nested(AttrIter),
+    Nested(Attribute),
   }
+  pub struct Annotated "annotated"
   pub enum Type {
     Basic(BasicType),
+    Unit(UnitType),
     Tuple(TupleType),
     Function(FunctionType),
     SelfType(KwSelfType),
   }
   pub struct BasicType "basic_type"
+  pub struct UnitType "unit_type"
   pub struct TupleType "tuple_type"
   pub struct FunctionType "function_type"
   pub enum Expr {
     Literal(Literal),
     TupleExpression(TupleExpression),
     CodeBlock(CodeBlock),
+    BasicType(BasicType),
+    UnitType(UnitType),
   }
   pub struct Identifier "identifier"
   pub enum Literal {
@@ -78,7 +91,8 @@ ast_nodes! {
   pub struct NumLit "numeric_literal"
   pub struct TupleExpression "tuple_expression"
   pub struct CodeBlock "codeblock"
-  pub enum Statement {
+  pub struct Statement "statement"
+  pub enum StatementKind {
     LetBinding(LetBinding),
     Expr(Expr),
   }
@@ -89,18 +103,32 @@ typed_iter! {
   pub struct AttrIter: Attribute
   pub struct ItemIter: Item
   pub struct AttrArgIter: AttrDataValue = "arg"
-  pub struct InputIter: Expr = "input"
+  pub struct InputIter: Annotated = "input"
+  pub struct FnTypeInputIter: Type = "input"
   pub struct StatementIter: Statement
   pub struct ExternItemIter: ExternItem = "item"
+  pub struct SuperIter: KwSuper
+  pub struct SegmentIter: Identifier = "segment"
+  pub struct GenericArgIter: GenericArg = "generic_arg"
+  pub struct TupleTypeIter: Type = "member"
+  pub struct TupleExprIter: Expr = "member"
 }
 
 keywords! {
-  KwSelfType "Self"
   KwConst "const"
+  KwInfer "_"
+  KwPackage "package"
+  KwSelfWord "self"
+  KwSelfType "Self"
+  KwSuper "super"
   KwUnsafe "unsafe"
 }
 
 impl<'ast> File<'ast> {
+  pub fn attributes(&self) -> AttrIter<'ast> {
+    AttrIter::new(self.node())
+  }
+
   pub fn items(&self) -> ItemIter<'ast> {
     ItemIter::new(self.node())
   }
@@ -111,15 +139,15 @@ impl<'ast> Function<'ast> {
     AttrIter::new(self.node())
   }
 
-  pub fn vis(&self) -> Option<Visibility> {
+  pub fn vis(&self) -> Option<Visibility<'ast>> {
     self.optional_child("vis")
   }
 
-  pub fn modifier(&self) -> Option<FunctionModifier> {
+  pub fn modifier(&self) -> Option<FunctionModifier<'ast>> {
     self.optional_child("modifier")
   }
 
-  pub fn name(&self) -> Identifier {
+  pub fn name(&self) -> Identifier<'ast> {
     self.required_child("name")
   }
 
@@ -138,11 +166,30 @@ impl<'ast> Function<'ast> {
 
 impl<'ast> FunctionModifier<'ast> {
   pub fn kind(&self) -> FunctionModifierKind<'ast> {
-    self.required_child("modifier")
+    let child = self
+      .node()
+      .child(0)
+      .expect("function modifier node with no children");
+    FunctionModifierKind::new(child).unwrap_or_else(|| {
+      panic!(
+        "unexpected child type `{}` in function modifier",
+        child.kind()
+      )
+    })
+  }
+}
+
+impl<'ast> Extern<'ast> {
+  pub fn abi(&self) -> Option<StrLit<'ast>> {
+    self.optional_child("abi")
   }
 }
 
 impl<'ast> ExternBlock<'ast> {
+  pub fn abi(&self) -> Option<StrLit<'ast>> {
+    self.optional_child("abi")
+  }
+
   pub fn items(&self) -> ExternItemIter<'ast> {
     ExternItemIter::new(self.node())
   }
@@ -152,15 +199,166 @@ impl<'ast> ExternFunction<'ast> {
   pub fn vis(&self) -> Option<Visibility<'ast>> {
     self.optional_child("vis")
   }
+
+  pub fn name(&self) -> Identifier<'ast> {
+    self.required_child("name")
+  }
+
+  pub fn inputs(&self) -> InputIter<'ast> {
+    InputIter::new(self.node())
+  }
+
+  pub fn output(&self) -> Option<Type<'ast>> {
+    self.optional_child("output")
+  }
+}
+
+impl<'ast> Visibility<'ast> {
+  pub fn restriction(&self) -> Option<VisibilityRestriction<'ast>> {
+    self.optional_child("restriction")
+  }
+}
+
+impl<'ast> Path<'ast> {
+  pub fn start(&self) -> PathStart<'ast> {
+    use PathStart::*;
+    let mut cursor = self.node().walk();
+    assert!(cursor.goto_first_child(), "path node has no children");
+    let field_name = loop {
+      let field_name = cursor.field_name();
+      if field_name.is_some() {
+        break field_name;
+      }
+      if !cursor.goto_next_sibling() {
+        break None;
+      }
+    };
+    let field_name = field_name.expect("path node has no named children");
+
+    match field_name {
+      "rooted" => Segment(FirstSegment {
+        rooted: AnonNode::new(cursor.node()),
+        segment: self.required_child("first_segment"),
+      }),
+      "first_segment" => Segment(FirstSegment {
+        rooted: None,
+        segment: Identifier::new(cursor.node()).unwrap_or_else(|| {
+          panic!(
+            "expected identifier found `{}` creating {}",
+            cursor.node().kind(),
+            type_name::<PathStart>()
+          )
+        }),
+      }),
+      "package" => Package(KwPackage(cursor.node())),
+      "self" => Selph(KwSelfWord(cursor.node())),
+      "super" => Super(SuperIter::new(self.node())),
+      kind => panic!("first child of path node has unexpected kind `{kind}`"),
+    }
+  }
+
+  pub fn segments(&self) -> SegmentIter<'ast> {
+    SegmentIter::new(self.node())
+  }
+}
+
+#[derive(Clone)]
+pub enum PathStart<'ast> {
+  Segment(FirstSegment<'ast>),
+  Package(KwPackage<'ast>),
+  Selph(KwSelfWord<'ast>),
+  Super(SuperIter<'ast>),
+}
+
+#[non_exhaustive]
+#[derive(Copy, Clone)]
+pub struct FirstSegment<'ast> {
+  pub rooted: Option<AnonNode<'ast>>,
+  pub segment: Identifier<'ast>,
 }
 
 impl<'ast> Attribute<'ast> {
   pub fn path(&self) -> Path<'ast> {
-    Path(self.0.named_child(0).unwrap())
+    self.named_child(0)
   }
 
   pub fn data(&self) -> Option<AttrData<'ast>> {
-    self.optional_child("arg")
+    AttrData::new(self.node())
+  }
+}
+
+#[derive(Clone)]
+pub enum AttrData<'ast> {
+  Assign(AttrDataValue<'ast>),
+  Call(AttrArgIter<'ast>),
+}
+
+forward_to_node!(AttrData);
+
+impl<'ast> AstNode<'ast> for AttrData<'ast> {
+  fn new(node: Node<'ast>) -> Option<Self> {
+    node
+      .child_by_field_name("value")
+      .map(|value| AttrData::Assign(AttrDataValue::new(value).unwrap()))
+      .or_else(|| {
+        node
+          .child_by_field_name("arg")
+          .is_some()
+          .then(|| AttrData::Call(AttrArgIter::new(node)))
+      })
+  }
+
+  fn node(&self) -> Node<'ast> {
+    match self {
+      AttrData::Assign(child) => child.node(),
+      AttrData::Call(child) => child.node(),
+    }
+  }
+}
+
+impl<'ast> Annotated<'ast> {
+  pub fn ident(&self) -> Identifier<'ast> {
+    self.named_child(0)
+  }
+
+  pub fn ty(&self) -> Type<'ast> {
+    self.named_child(1)
+  }
+}
+
+impl<'ast> BasicType<'ast> {
+  pub fn path(&self) -> Path<'ast> {
+    self.named_child(0)
+  }
+
+  pub fn generics(&self) -> GenericArgIter {
+    GenericArgIter::new(self.node())
+  }
+}
+
+impl<'ast> TupleType<'ast> {
+  pub fn elements(&self) -> TupleTypeIter<'ast> {
+    TupleTypeIter::new(self.node())
+  }
+}
+
+impl<'ast> FunctionType<'ast> {
+  pub fn modifier(&self) -> Option<FunctionModifier<'ast>> {
+    self.optional_child("modifier")
+  }
+
+  pub fn inputs(&self) -> FnTypeInputIter<'ast> {
+    FnTypeInputIter::new(self.node())
+  }
+
+  pub fn output(&self) -> Option<Type<'ast>> {
+    self.optional_child("output")
+  }
+}
+
+impl<'ast> TupleExpression<'ast> {
+  pub fn elements(&self) -> TupleExprIter<'ast> {
+    TupleExprIter::new(self.node())
   }
 }
 
@@ -174,74 +372,63 @@ impl<'ast> CodeBlock<'ast> {
   }
 }
 
+impl<'ast> Statement<'ast> {
+  pub fn kind(&self) -> Option<StatementKind<'ast>> {
+    let child = self.node().named_child(0)?;
+    LetBinding::new(child)
+      .map(StatementKind::LetBinding)
+      .or_else(|| Expr::new(child).map(StatementKind::Expr))
+  }
+}
+
+impl<'ast> LetBinding<'ast> {
+  pub fn identifier(&self) -> Identifier<'ast> {
+    self.named_child(0)
+  }
+
+  pub fn ty(&self) -> Option<Type<'ast>> {
+    self.optional_child("type")
+  }
+
+  pub fn value(&self) -> Expr<'ast> {
+    self.required_child("value")
+  }
+}
+
 impl<'ast> StrLit<'ast> {
   pub fn value<'source>(&self, source: &'source str) -> &'source str {
-    &source[self.0.start_byte()..self.0.end_byte()]
+    &source[self.start_byte() + 1..self.end_byte() - 1]
   }
 }
 
 impl BoolLit<'_> {
   pub fn value(&self) -> bool {
-    self.0.kind().parse().unwrap()
+    let kind = self
+      .node()
+      .child(0)
+      .expect("boolean node with no children")
+      .kind();
+    kind
+      .parse()
+      .unwrap_or_else(|_| panic!("expected boolean node found `{kind}`"))
   }
 }
 
 impl<'ast> NumLit<'ast> {
-  pub fn prefix(&self) -> Option<NumLitPrefix> {
+  pub fn prefix(&self) -> Option<AnonNode<'ast>> {
     self.optional_child("prefix")
   }
 
-  pub fn digits<'source>(&self, source: &'source str) -> &'source str {
-    self
-      .node()
-      .child_by_field_name("digits")
-      .unwrap()
-      .utf8_text(source.as_bytes())
-      .unwrap()
+  pub fn digits(&self) -> AnonNode<'ast> {
+    self.required_child("digits")
   }
 
-  pub fn float_part<'source>(
-    &self,
-    source: &'source str,
-  ) -> Option<&'source str> {
-    self
-      .node()
-      .child_by_field_name("float_part")
-      .map(|node| node.utf8_text(source.as_bytes()).unwrap())
+  pub fn float_part(&self) -> Option<AnonNode<'ast>> {
+    self.optional_child("float_part")
   }
 
-  pub fn suffix(&self) -> Option<&'static str> {
-    self
-      .node()
-      .child_by_field_name("suffix")
-      .map(|node| node.kind())
-  }
-}
-
-pub struct NumLitPrefix<'ast> {
-  node: Node<'ast>,
-  pub value: NumLitPrefixValue,
-}
-
-forward_to_node!(NumLitPrefix);
-
-impl<'ast> AstNode<'ast> for NumLitPrefix<'ast> {
-  fn new(node: Node<'ast>) -> Option<Self> {
-    match node.kind() {
-      "0x" => Some(Self {
-        node,
-        value: NumLitPrefixValue::Hex,
-      }),
-      "0b" => Some(Self {
-        node,
-        value: NumLitPrefixValue::Bin,
-      }),
-      _ => None,
-    }
-  }
-
-  fn node(&self) -> Node<'ast> {
-    self.node
+  pub fn suffix(&self) -> Option<AnonNode<'ast>> {
+    self.optional_child("suffix")
   }
 }
 
@@ -250,24 +437,63 @@ pub enum NumLitPrefixValue {
   Hex,
 }
 
-trait AstNode<'ast>: Sized {
+trait AstNode<'ast>: Sized + Clone {
   fn new(node: Node<'ast>) -> Option<Self>;
 
   fn node(&self) -> Node<'ast>;
 
   fn optional_child<T: AstNode<'ast>>(&self, name: &str) -> Option<T> {
-    self
-      .node()
-      .child_by_field_name(name)
-      .map(|node| T::new(node).unwrap())
+    self.node().child_by_field_name(name).map(|node| {
+      T::new(node).unwrap_or_else(|| {
+        panic!(
+          "unexpected node kind `{}` creating {}",
+          node.kind(),
+          type_name::<T>()
+        )
+      })
+    })
   }
 
   fn required_child<T: AstNode<'ast>>(&self, name: &str) -> T {
-    self
-      .node()
-      .child_by_field_name(name)
-      .map(T::new)
-      .unwrap()
-      .unwrap()
+    self.optional_child(name).unwrap_or_else(|| {
+      panic!("missing field `{name}` creating {}", type_name::<T>())
+    })
+  }
+
+  fn named_child<T: AstNode<'ast>>(&self, idx: usize) -> T {
+    let child = self.node().named_child(idx).unwrap_or_else(|| {
+      panic!(
+        "expected named child at idx {idx} creating {}",
+        type_name::<T>()
+      )
+    });
+    T::new(child).unwrap_or_else(|| {
+      panic!(
+        "unexpected named child `{}` at idx {idx} creating {}",
+        child.kind(),
+        type_name::<T>(),
+      )
+    })
+  }
+}
+
+#[derive(Copy, Clone)]
+pub struct AnonNode<'ast>(Node<'ast>);
+
+impl<'ast> AnonNode<'ast> {
+  pub fn value<'source>(&self, source: &'source str) -> &'source str {
+    &source[self.0.byte_range()]
+  }
+}
+
+forward_to_node!(AnonNode);
+
+impl<'ast> AstNode<'ast> for AnonNode<'ast> {
+  fn new(node: Node<'ast>) -> Option<Self> {
+    Some(Self(node))
+  }
+
+  fn node(&self) -> Node<'ast> {
+    self.0
   }
 }
