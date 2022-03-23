@@ -6,3 +6,4 @@ publish = false
 
 [dependencies]
 chipc-ast = { path = "../chipc-ast" }
+chipc-arena = { path = "../chipc-arena" }

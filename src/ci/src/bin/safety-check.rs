@@ -7,13 +7,15 @@ use std::{
   io::{BufRead, BufReader},
 };
 
+const ALLOWED: &[&str] = &["chipc-ast", "chipc-arena"];
+
 fn main() -> Result<()> {
   let metadata = MetadataCommand::new().no_deps().exec()?;
 
   let mut missing_forbid = 0;
 
   for package in &metadata.packages {
-    if package.name == "chipc-ast" {
+    if ALLOWED.contains(&package.name.as_str()) {
       continue;
     }
 
