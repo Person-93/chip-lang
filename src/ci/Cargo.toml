@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.56"
 cargo_metadata = "0.14.2"
+console = "0.15.0"
