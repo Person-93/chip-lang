@@ -1,28 +1,64 @@
+use crate::private::Sealed;
 use std::{any::type_name, str};
-use tree_sitter::{Node, Parser, Point, Tree, TreeCursor};
+use tree_sitter::{Node, Point, TreeCursor};
 
-#[macro_use]
-mod macros;
-#[cfg(test)]
-mod tests;
+pub trait AstNode<'ast>: Sized + Clone + Sealed {
+  fn new(node: Node<'ast>) -> Option<Self>;
 
-pub struct Ast(Tree);
+  fn node(&self) -> Node<'ast>;
 
-impl Ast {
-  pub fn parse(source: &str) -> Self {
-    let mut parser = Parser::new();
-    parser
-      .set_language(tree_sitter_chip::language())
-      .expect("failed loading grammar");
-    Self::new(parser.parse(source, None).expect("failed parsing source"))
+  fn optional_child<T: AstNode<'ast>>(&self, name: &str) -> Option<T> {
+    self.node().child_by_field_name(name).map(|node| {
+      T::new(node).unwrap_or_else(|| {
+        panic!(
+          "unexpected node kind `{}` creating {}",
+          node.kind(),
+          type_name::<T>()
+        )
+      })
+    })
   }
 
-  pub fn new(tree: Tree) -> Self {
-    Self(tree)
+  fn required_child<T: AstNode<'ast>>(&self, name: &str) -> T {
+    self.optional_child(name).unwrap_or_else(|| {
+      panic!("missing field `{name}` creating {}", type_name::<T>())
+    })
   }
 
-  pub fn root(&self) -> File {
-    File::new(self.0.root_node()).expect("failed extracting root AST node")
+  fn named_child<T: AstNode<'ast>>(&self, idx: usize) -> T {
+    let child = self.node().named_child(idx).unwrap_or_else(|| {
+      panic!(
+        "expected named child at idx {idx} creating {}",
+        type_name::<T>()
+      )
+    });
+    T::new(child).unwrap_or_else(|| {
+      panic!(
+        "unexpected named child `{}` at idx {idx} creating {}",
+        child.kind(),
+        type_name::<T>(),
+      )
+    })
+  }
+
+  fn start_position(&self) -> Point {
+    self.node().start_position()
+  }
+
+  fn end_position(&self) -> Point {
+    self.node().end_position()
+  }
+
+  fn start_byte(&self) -> usize {
+    self.node().start_byte()
+  }
+
+  fn end_byte(&self) -> usize {
+    self.node().end_byte()
+  }
+
+  fn byte_range(&self) -> std::ops::Range<usize> {
+    self.node().byte_range()
   }
 }
 
@@ -293,8 +329,6 @@ pub enum AttrData<'ast> {
   Call(AttrArgIter<'ast>),
 }
 
-forward_to_node!(AttrData);
-
 impl<'ast> AstNode<'ast> for AttrData<'ast> {
   fn new(node: Node<'ast>) -> Option<Self> {
     node
@@ -315,6 +349,8 @@ impl<'ast> AstNode<'ast> for AttrData<'ast> {
     }
   }
 }
+
+impl Sealed for AttrData<'_> {}
 
 impl<'ast> Annotated<'ast> {
   pub fn ident(&self) -> Identifier<'ast> {
@@ -437,46 +473,6 @@ pub enum NumLitPrefixValue {
   Hex,
 }
 
-trait AstNode<'ast>: Sized + Clone {
-  fn new(node: Node<'ast>) -> Option<Self>;
-
-  fn node(&self) -> Node<'ast>;
-
-  fn optional_child<T: AstNode<'ast>>(&self, name: &str) -> Option<T> {
-    self.node().child_by_field_name(name).map(|node| {
-      T::new(node).unwrap_or_else(|| {
-        panic!(
-          "unexpected node kind `{}` creating {}",
-          node.kind(),
-          type_name::<T>()
-        )
-      })
-    })
-  }
-
-  fn required_child<T: AstNode<'ast>>(&self, name: &str) -> T {
-    self.optional_child(name).unwrap_or_else(|| {
-      panic!("missing field `{name}` creating {}", type_name::<T>())
-    })
-  }
-
-  fn named_child<T: AstNode<'ast>>(&self, idx: usize) -> T {
-    let child = self.node().named_child(idx).unwrap_or_else(|| {
-      panic!(
-        "expected named child at idx {idx} creating {}",
-        type_name::<T>()
-      )
-    });
-    T::new(child).unwrap_or_else(|| {
-      panic!(
-        "unexpected named child `{}` at idx {idx} creating {}",
-        child.kind(),
-        type_name::<T>(),
-      )
-    })
-  }
-}
-
 #[derive(Copy, Clone)]
 pub struct AnonNode<'ast>(Node<'ast>);
 
@@ -485,8 +481,6 @@ impl<'ast> AnonNode<'ast> {
     &source[self.0.byte_range()]
   }
 }
-
-forward_to_node!(AnonNode);
 
 impl<'ast> AstNode<'ast> for AnonNode<'ast> {
   fn new(node: Node<'ast>) -> Option<Self> {
@@ -497,3 +491,5 @@ impl<'ast> AstNode<'ast> for AnonNode<'ast> {
     self.0
   }
 }
+
+impl Sealed for AnonNode<'_> {}

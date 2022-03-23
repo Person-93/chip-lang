@@ -1,9 +1,8 @@
-use super::*;
-use std::fmt::{Result, Write};
 use chip_snapshot_tests::{assert_snapshot, run_cases};
+use chipc_ast::*;
+use std::fmt::{Result, Write};
 
-#[test]
-fn snapshot() {
+fn main() {
   run_cases(|source| {
     let ast = Ast::parse(&source);
     let mut printer = AstPrinter(String::new(), &source);

@@ -31,7 +31,7 @@ macro_rules! ast_node_impl {
       }
     }
 
-    forward_to_node! { $name }
+    impl Sealed for $name<'_> {}
   };
 
   (
@@ -64,7 +64,7 @@ macro_rules! ast_node_impl {
       }
     }
 
-    forward_to_node! { $name }
+    impl Sealed for $name<'_> {}
   };
 }
 
@@ -88,36 +88,7 @@ macro_rules! keywords {
 
         pub const SYMBOL: &'static str = $symbol;
       }
-
-      forward_to_node! { $name }
     )*
-  };
-}
-
-#[macro_export]
-macro_rules! forward_to_node {
-  ($name:ident) => {
-    impl<'ast> $name<'ast> {
-      pub fn start_position(&self) -> Point {
-        self.node().start_position()
-      }
-
-      pub fn end_position(&self) -> Point {
-        self.node().end_position()
-      }
-
-      pub fn start_byte(&self) -> usize {
-        self.node().start_byte()
-      }
-
-      pub fn end_byte(&self) -> usize {
-        self.node().end_byte()
-      }
-
-      pub fn byte_range(&self) -> std::ops::Range<usize> {
-        self.node().byte_range()
-      }
-    }
   };
 }
 
