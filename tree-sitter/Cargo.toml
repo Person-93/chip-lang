@@ -28,3 +28,4 @@ cc = "1.0"
 
 [dev-dependencies]
 chip-snapshot-tests = { path = "../tests/snapshot" }
+chip-test-harness = { path = "../tests/harness" }

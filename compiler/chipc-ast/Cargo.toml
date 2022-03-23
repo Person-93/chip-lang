@@ -10,6 +10,7 @@ tree-sitter-chip = { path = "../../tree-sitter" }
 
 [dev-dependencies]
 chip-snapshot-tests = { path = "../../tests/snapshot" }
+chip-test-harness = { path = "../../tests/harness" }
 
 [[test]]
 name = "snapshot"

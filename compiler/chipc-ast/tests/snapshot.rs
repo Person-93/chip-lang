@@ -2,6 +2,7 @@ use chip_snapshot_tests::{assert_snapshot, run_cases};
 use chipc_ast::*;
 use std::fmt::{Result, Write};
 
+#[chip_test_harness::nextest_main]
 fn main() {
   run_cases(|source| {
     let ast = Ast::parse(&source);

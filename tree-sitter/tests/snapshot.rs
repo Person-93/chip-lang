@@ -2,6 +2,7 @@ use chip_snapshot_tests::{assert_snapshot, run_cases};
 use std::fmt::{self, Write};
 use tree_sitter::{Parser, Point, Tree, TreeCursor};
 
+#[chip_test_harness::nextest_main]
 fn main() {
   let mut parser = Parser::new();
   parser

@@ -46,6 +46,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "chip-test-harness"
+version = "0.0.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "chipc"
 version = "0.0.0"
 dependencies = [
@@ -64,6 +73,7 @@ name = "chipc-ast"
 version = "0.0.0"
 dependencies = [
  "chip-snapshot-tests",
+ "chip-test-harness",
  "tree-sitter",
  "tree-sitter-chip",
 ]
@@ -327,6 +337,7 @@ version = "0.0.0"
 dependencies = [
  "cc",
  "chip-snapshot-tests",
+ "chip-test-harness",
  "tree-sitter",
 ]
 
