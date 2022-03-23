@@ -20,7 +20,7 @@ repos:
   # NOTE uncomment no-commit-to-branch once project gets underway
 #      - id: no-commit-to-branch
   - id: pretty-format-json
-    exclude: ^compiler/chipc-ast/src/(grammar|node-types)\.json$
+    exclude: ^tree-sitter/(src/(grammar|node-types)|package)\.json$
   - id: trailing-whitespace
 - repo: https://github.com/jumanjihouse/pre-commit-hooks
   rev: 2.1.6

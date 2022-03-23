@@ -39,6 +39,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "chip-snapshot-tests"
+version = "0.0.0"
+dependencies = [
+ "insta",
+]
+
+[[package]]
 name = "chipc"
 version = "0.0.0"
 dependencies = [
@@ -56,9 +63,9 @@ dependencies = [
 name = "chipc-ast"
 version = "0.0.0"
 dependencies = [
- "cc",
- "insta",
+ "chip-snapshot-tests",
  "tree-sitter",
+ "tree-sitter-chip",
 ]
 
 [[package]]
@@ -159,9 +166,9 @@ checksum = "7fb9b38af92608140b86b693604b9ffcc5824240a484d1ecd4795bacb2fe88f3"
 
 [[package]]
 name = "log"
-version = "0.4.14"
+version = "0.4.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51b9bbe6c47d51fc3e1a9b945965946b4c44142ab8792c50835a980d362c2710"
+checksum = "6389c490849ff5bc16be905ae24bc913a9c8892e19b2341dbc175e14c341c2b8"
 dependencies = [
  "cfg-if",
 ]
@@ -312,6 +319,15 @@ checksum = "09b3b781640108d29892e8b9684642d2cda5ea05951fd58f0fea1db9edeb9b71"
 dependencies = [
  "cc",
  "regex",
+]
+
+[[package]]
+name = "tree-sitter-chip"
+version = "0.0.0"
+dependencies = [
+ "cc",
+ "chip-snapshot-tests",
+ "tree-sitter",
 ]
 
 [[package]]

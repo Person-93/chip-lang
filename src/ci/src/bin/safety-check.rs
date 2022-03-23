@@ -8,7 +8,7 @@ use std::{
   io::{BufRead, BufReader},
 };
 
-const ALLOWED: &[&str] = &["chipc-ast", "chipc-arena"];
+const ALLOWED: &[&str] = &["chipc-arena", "tree-sitter-chip"];
 
 fn main() -> Result<()> {
   let metadata = MetadataCommand::new().no_deps().exec()?;

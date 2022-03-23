@@ -1,8 +1,8 @@
 ---
-source: compiler/chipc-ast/src/grammar/tests.rs
-assertion_line: 18
+source: tree-sitter/tests/snapshot.rs
+assertion_line: 16
 expression: "print(&tree, &source).trim()"
-input_file: compiler/chipc-ast/src/test_util/cases/attributes.chip
+input_file: tree-sitter/bindings/rust/testing/cases/attributes.chip
 ---
 file @ 0:0..11:0
   #^[ @ 0:0..0:3

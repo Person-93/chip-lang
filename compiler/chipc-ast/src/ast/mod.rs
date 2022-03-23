@@ -12,7 +12,7 @@ impl Ast {
   pub fn parse(source: &str) -> Self {
     let mut parser = Parser::new();
     parser
-      .set_language(crate::grammar::language())
+      .set_language(tree_sitter_chip::language())
       .expect("failed loading grammar");
     Self::new(parser.parse(source, None).expect("failed parsing source"))
   }

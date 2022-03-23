@@ -1,0 +1,21 @@
+{
+  "name": "tree-sitter-chip",
+  "version": "0.0.0",
+  "description": "chip grammar for tree-sitter",
+  "main": "bindings/node",
+  "license": "UNLICENSED",
+  "scripts": {
+    "generate": "tree-sitter generate",
+    "test": "tree-sitter test"
+  },
+  "keywords": [
+    "parsing",
+    "incremental"
+  ],
+  "dependencies": {
+    "nan": "^2.12.1"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.20.6"
+  }
+}

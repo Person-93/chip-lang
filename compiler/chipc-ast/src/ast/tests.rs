@@ -1,10 +1,10 @@
 use super::*;
-use insta::assert_snapshot;
 use std::fmt::{Result, Write};
+use chip_snapshot_tests::{assert_snapshot, run_cases};
 
 #[test]
 fn snapshot() {
-  crate::test_util::run_cases(|source| {
+  run_cases(|source| {
     let ast = Ast::parse(&source);
     let mut printer = AstPrinter(String::new(), &source);
     printer.print_ast(&ast).unwrap();

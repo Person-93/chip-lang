@@ -1,6 +1,5 @@
-pub use self::{ast::*, grammar::*};
+#![forbid(unsafe_code)]
+
+pub use self::ast::*;
 
 mod ast;
-mod grammar;
-#[cfg(test)]
-mod test_util;

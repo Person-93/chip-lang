@@ -1,0 +1,7 @@
+---
+source: tree-sitter/tests/snapshot.rs
+assertion_line: 16
+expression: "print(&tree, &source).trim()"
+input_file: tree-sitter/tests/cases/empty.chip
+---
+file @ 0:0..0:0
