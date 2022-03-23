@@ -1,3 +1,2 @@
 [workspace]
-members = ["compiler/chipc"]
-exclude = ["src"]
+members = ["compiler/chipc", "xtask"]

@@ -3,13 +3,14 @@ use clap::Parser;
 use std::{fs, path::Path};
 
 #[derive(Parser)]
-struct Cli {
+pub struct Cli {
   /// The name of the new crate
   name: String,
 }
 
-fn main() -> AnyResult<()> {
-  let Cli { name } = Cli::parse();
+const PROJECT_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../");
+
+pub fn main(Cli { name }: Cli) -> AnyResult<()> {
   let name = format!("chipc-{name}");
   let mut dir = Path::new(PROJECT_ROOT).join("compiler").join(&name);
 
@@ -45,5 +46,3 @@ publish = false
 
   Ok(())
 }
-
-const PROJECT_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../");

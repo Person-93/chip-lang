@@ -1,5 +1,3 @@
-#![forbid(unsafe_code)]
-
 use anyhow::Result;
 use cargo_metadata::{MetadataCommand, Target};
 use console::style;
@@ -10,7 +8,7 @@ use std::{
 
 const ALLOWED: &[&str] = &["chipc-arena", "tree-sitter-chip"];
 
-fn main() -> Result<()> {
+pub fn main() -> Result<()> {
   let metadata = MetadataCommand::new().no_deps().exec()?;
 
   let mut missing_forbid = 0;

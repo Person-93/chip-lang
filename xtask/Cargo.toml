@@ -1,9 +1,11 @@
 [package]
-name = "util"
+name = "xtask"
 version = "0.0.0"
 edition = "2021"
 publish = false
 
 [dependencies]
 anyhow = "1.0.56"
+cargo_metadata = "0.14.2"
 clap = { version = "3.1.6", features = ["derive"] }
+console = "0.15.0"

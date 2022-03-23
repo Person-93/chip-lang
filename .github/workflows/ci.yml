@@ -184,4 +184,5 @@ jobs:
     - name: Safety Check
       uses: actions-rs/cargo@v1
       with:
-        command: safety-check
+        command: xtask
+        args: safety-check

@@ -1,3 +1,2 @@
 [alias]
-new-crate = "run --manifest-path=src/util/Cargo.toml --bin=new-crate --"
-safety-check = "run --manifest-path=src/ci/Cargo.toml --bin=safety-check"
+xtask = "run --package=xtask --"
