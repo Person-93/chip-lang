@@ -22,7 +22,7 @@ on:
 jobs:
   ci:
     name: CI
-    needs: [smoke, test, docs, rustfmt, clippy, miri]
+    needs: [smoke, test, docs, rustfmt, clippy, miri, yarn-lock]
     runs-on: ubuntu-latest
     steps:
     - name: Done
@@ -186,3 +186,10 @@ jobs:
       with:
         command: xtask
         args: safety-check
+
+  yarn-lock:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Yarn Lock Integrity
+      run: cd tree-sitter && yarn install --immutable --immutable-cache
