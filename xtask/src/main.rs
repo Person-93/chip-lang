@@ -3,6 +3,7 @@
 use clap::{Parser, Subcommand};
 
 mod command_ext;
+mod generate_parser;
 mod new_crate;
 mod result_ext;
 mod safety_check;
@@ -15,12 +16,14 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Task {
+  GenerateParser(generate_parser::Cli),
   NewCrate(new_crate::Cli),
   SafetyCheck,
 }
 
 fn main() -> ! {
   match Cli::parse().task {
+    Task::GenerateParser(cli) => generate_parser::main(cli),
     Task::NewCrate(cli) => new_crate::main(cli),
     Task::SafetyCheck => safety_check::main(),
   }
