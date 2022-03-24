@@ -31,7 +31,7 @@ pub fn nextest_main(attr: TokenStream, input: TokenStream) -> TokenStream {
         }
         process::exit(0);
       }
-      Some(arg) if arg == "--exact" => (),
+      Some(arg) if ["--exact", "-q", "--quiet"].contains(&arg.as_str()) => (),
       Some(arg) => {
         eprintln!("unrecognized argument: {}", arg);
         process::exit(1);
