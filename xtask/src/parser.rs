@@ -15,6 +15,7 @@ use std::{
   slice,
 };
 
+/// Generate the tree-sitter parser and optionally review the snapshot tests
 #[derive(Parser)]
 pub struct Cli {
   /// Run tests and review snapshots after parser is generated.

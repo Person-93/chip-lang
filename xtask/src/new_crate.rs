@@ -2,9 +2,10 @@ use crate::{result_ext::ResultExt, PROJECT_ROOT};
 use clap::Parser;
 use std::{fs, path::Path, process};
 
+/// Add a new crate in the compiler directory
 #[derive(Parser)]
 pub struct Cli {
-  /// The name of the new crate
+  /// The name of the new crate (without the 'chipc-' prefix)
   name: String,
 }
 

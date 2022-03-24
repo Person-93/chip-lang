@@ -1,5 +1,6 @@
 use crate::result_ext::ResultExt;
 use cargo_metadata::{MetadataCommand, Target};
+use clap::Parser;
 use console::style;
 use std::{
   fs::File,
@@ -8,7 +9,11 @@ use std::{
 
 const ALLOWED: &[&str] = &["chipc-arena", "tree-sitter-chip"];
 
-pub fn main() -> ! {
+/// Check that all binary and library targets forbid unsafe code
+#[derive(Parser)]
+pub struct Cli {}
+
+pub fn main(_: Cli) -> ! {
   let metadata = MetadataCommand::new().no_deps().exec().exit_on_err();
 
   let mut missing_forbid = 0;
