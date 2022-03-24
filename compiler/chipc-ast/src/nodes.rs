@@ -100,21 +100,21 @@ ast_nodes! {
   pub struct Annotated "annotated"
   pub enum Type {
     Basic(BasicType),
-    Unit(UnitType),
+    Unit(Unit),
     Tuple(TupleType),
     Function(FunctionType),
-    SelfType(KwSelfType),
+    Selph(KwSelfType),
   }
   pub struct BasicType "basic_type"
-  pub struct UnitType "unit_type"
+  pub struct Unit "unit"
   pub struct TupleType "tuple_type"
   pub struct FunctionType "function_type"
   pub enum Expr {
     Literal(Literal),
-    TupleExpression(TupleExpression),
+    Tuple(TupleExpression),
     CodeBlock(CodeBlock),
-    BasicType(BasicType),
-    UnitType(UnitType),
+    Basic(BasicType),
+    Unit(Unit),
   }
   pub struct Identifier "identifier"
   pub enum Literal {
@@ -367,7 +367,7 @@ impl<'ast> BasicType<'ast> {
     self.named_child(0)
   }
 
-  pub fn generics(&self) -> GenericArgIter {
+  pub fn generics(&self) -> GenericArgIter<'ast> {
     GenericArgIter::new(self.node())
   }
 }
@@ -428,6 +428,12 @@ impl<'ast> LetBinding<'ast> {
 
   pub fn value(&self) -> Expr<'ast> {
     self.required_child("value")
+  }
+}
+
+impl<'ast> Identifier<'ast> {
+  pub fn value(&self, source: &'ast str) -> &'ast str {
+    &source[self.byte_range()]
   }
 }
 

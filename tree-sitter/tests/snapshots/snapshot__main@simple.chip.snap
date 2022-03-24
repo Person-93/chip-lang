@@ -1,8 +1,8 @@
 ---
 source: tree-sitter/tests/snapshot.rs
-assertion_line: 16
+assertion_line: 17
 expression: "print(&tree, &source).trim()"
-input_file: tree-sitter/bindings/rust/testing/cases/simple.chip
+input_file: tests/snapshot/src/cases/simple.chip
 ---
 file @ 0:0..1:0
   function @ 0:0..0:10
@@ -11,4 +11,4 @@ file @ 0:0..1:0
     ( @ 0:4..0:5
     ) @ 0:5..0:6
     : @ 0:6..0:7
-    body:unit_type @ 0:8..0:10	()
+    body:unit @ 0:8..0:10	()

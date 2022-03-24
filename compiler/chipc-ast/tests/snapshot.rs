@@ -370,7 +370,7 @@ impl<T: Write> AstPrinter<'_, T> {
           self.print_type(output, "output", indentation)?;
         }
       }
-      Type::SelfType(_) => writeln!(self.0, "Self")?,
+      Type::Selph(_) => writeln!(self.0, "Self")?,
     }
     Ok(())
   }
@@ -414,7 +414,7 @@ impl<T: Write> AstPrinter<'_, T> {
         write!(self.0, "{name}: ")?;
         self.append_literal(literal, indentation + 1)?;
       }
-      Expr::TupleExpression(tuple) => {
+      Expr::Tuple(tuple) => {
         self.indent(indentation)?;
         writeln!(self.0, "{name}: tuple")?;
 
@@ -446,13 +446,13 @@ impl<T: Write> AstPrinter<'_, T> {
           self.print_expr(trailing, "trailing", indentation)?;
         }
       }
-      Expr::BasicType(basic) => {
+      Expr::Basic(basic) => {
         self.indent(indentation)?;
         writeln!(self.0, "{name}")?;
 
         self.print_basic_type(basic, indentation)?;
       }
-      Expr::UnitType(_) => {
+      Expr::Unit(_) => {
         self.indent(indentation)?;
         writeln!(self.0, "{name}: unit")?;
       }

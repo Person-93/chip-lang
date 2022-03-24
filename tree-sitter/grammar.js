@@ -130,7 +130,7 @@ module.exports = grammar({
 
     type: $ => choice(
       $.basic_type,
-      $.unit_type,
+      $.unit,
       $.tuple_type,
       $.function_type,
       "Self",
@@ -138,7 +138,7 @@ module.exports = grammar({
 
     basic_type: $ => seq($.path, optional($.generic_args)),
 
-    unit_type: $ => token(seq("(", ")")),
+    unit: $ => token(seq("(", ")")),
 
     tuple_type: $ => parenthesized(sepBy1(",", field("element", $.type))),
 
@@ -203,7 +203,7 @@ module.exports = grammar({
       $.tuple_expression,
       $.codeblock,
       $.basic_type,
-      $.unit_type,
+      $.unit,
       // TODO unary operation
       // TODO binary operation
       // TODO member access

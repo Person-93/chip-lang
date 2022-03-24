@@ -7,23 +7,30 @@ use tree_sitter::{Parser, Tree};
 mod macros;
 mod nodes;
 
-pub struct Ast(Tree);
+pub struct Ast<'ast>(Tree, &'ast str);
 
-impl Ast {
-  pub fn parse(source: &str) -> Self {
+impl<'ast> Ast<'ast> {
+  pub fn parse(source: &'ast str) -> Self {
     let mut parser = Parser::new();
     parser
       .set_language(tree_sitter_chip::language())
       .expect("failed loading grammar");
-    Self::new(parser.parse(source, None).expect("failed parsing source"))
+    Self::new(
+      parser.parse(source, None).expect("failed parsing source"),
+      source,
+    )
   }
 
-  pub fn new(tree: Tree) -> Self {
-    Self(tree)
+  pub fn new(tree: Tree, source: &'ast str) -> Self {
+    Self(tree, source)
   }
 
   pub fn root(&self) -> File {
     File::new(self.0.root_node()).expect("failed extracting root AST node")
+  }
+
+  pub fn source(&self) -> &'ast str {
+    self.1
   }
 }
 

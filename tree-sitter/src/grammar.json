@@ -588,7 +588,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "unit_type"
+          "name": "unit"
         },
         {
           "type": "SYMBOL",
@@ -625,7 +625,7 @@
         }
       ]
     },
-    "unit_type": {
+    "unit": {
       "type": "TOKEN",
       "content": {
         "type": "SEQ",
@@ -1218,7 +1218,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "unit_type"
+          "name": "unit"
         }
       ]
     },
