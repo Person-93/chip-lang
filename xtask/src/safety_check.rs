@@ -1,4 +1,4 @@
-use anyhow::Result;
+use crate::result_ext::ResultExt;
 use cargo_metadata::{MetadataCommand, Target};
 use console::style;
 use std::{
@@ -8,8 +8,8 @@ use std::{
 
 const ALLOWED: &[&str] = &["chipc-arena", "tree-sitter-chip"];
 
-pub fn main() -> Result<()> {
-  let metadata = MetadataCommand::new().no_deps().exec()?;
+pub fn main() -> ! {
+  let metadata = MetadataCommand::new().no_deps().exec().exit_on_err();
 
   let mut missing_forbid = 0;
 
@@ -24,8 +24,10 @@ pub fn main() -> Result<()> {
       }
 
       let mut first_line = String::new();
-      BufReader::new(File::open(&target.src_path)?)
-        .read_line(&mut first_line)?;
+      BufReader::new(File::open(&target.src_path).exit_on_err())
+        .read_line(&mut first_line)
+        .exit_on_err();
+
       if first_line.trim() != "#![forbid(unsafe_code)]" {
         missing_forbid += 1;
 
