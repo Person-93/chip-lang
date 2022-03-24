@@ -127,11 +127,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "chipc-main"
+name = "chipc-ast-lowering"
 version = "0.0.0"
 dependencies = [
  "chipc-arena",
  "chipc-ast",
+ "chipc-hir",
+]
+
+[[package]]
+name = "chipc-hir"
+version = "0.0.0"
+dependencies = [
+ "chipc-arena",
+]
+
+[[package]]
+name = "chipc-main"
+version = "0.0.0"
+dependencies = [
+ "chipc-ast",
+ "chipc-ast-lowering",
 ]
 
 [[package]]
