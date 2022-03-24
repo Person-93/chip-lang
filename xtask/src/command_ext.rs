@@ -28,7 +28,7 @@ impl CommandExt for Command {
 
     #[cfg(not(unix))]
     match self.wait() {
-      Ok(status) => process::exit(status.code().unwrap()),
+      Ok(()) => process::exit(0),
       Err(err) => err,
     }
   }
