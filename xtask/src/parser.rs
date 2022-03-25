@@ -1,9 +1,7 @@
-use crate::{command_ext::CommandExt, result_ext::ResultExt, PROJECT_ROOT};
-use clap::Parser;
-use std::fs::File;
-use std::io::{Read, Seek, SeekFrom};
+use crate::{CommandExt, Parser, ResultExt, PROJECT_ROOT};
 use std::{
-  io::{self, Write},
+  fs::File,
+  io::{self, Read, Seek, SeekFrom, Write},
   path::Path,
   process,
   process::Command,

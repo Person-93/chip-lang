@@ -1,8 +1,4 @@
-use crate::{
-  command_ext::CommandExt,
-  result_ext::{ErrorExt, ResultExt},
-};
-use clap::Parser;
+use crate::{CommandExt, ErrorExt, Parser, ResultExt};
 use std::{env, process::Command};
 
 /// Run `cargo nextest run` then `cargo insta review`

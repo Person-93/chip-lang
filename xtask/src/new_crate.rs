@@ -1,5 +1,4 @@
-use crate::{result_ext::ResultExt, PROJECT_ROOT};
-use clap::Parser;
+use crate::{Parser, ResultExt, PROJECT_ROOT};
 use std::{fs, path::Path, process};
 
 /// Add a new crate in the compiler directory

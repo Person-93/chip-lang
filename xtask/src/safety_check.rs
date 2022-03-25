@@ -1,6 +1,5 @@
-use crate::result_ext::ResultExt;
+use crate::{Parser, ResultExt};
 use cargo_metadata::{MetadataCommand, Target};
-use clap::Parser;
 use console::style;
 use std::{
   fs::File,
