@@ -3,6 +3,7 @@
 use clap::{Parser, Subcommand};
 
 mod command_ext;
+mod insta;
 mod new_crate;
 mod parser;
 mod result_ext;
@@ -19,6 +20,7 @@ enum Task {
   Parser(parser::Cli),
   NewCrate(new_crate::Cli),
   SafetyCheck(safety_check::Cli),
+  Insta(insta::Cli),
 }
 
 fn main() -> ! {
@@ -26,6 +28,7 @@ fn main() -> ! {
     Task::Parser(cli) => parser::main(cli),
     Task::NewCrate(cli) => new_crate::main(cli),
     Task::SafetyCheck(cli) => safety_check::main(cli),
+    Task::Insta(cli) => insta::main(cli),
   }
 }
 

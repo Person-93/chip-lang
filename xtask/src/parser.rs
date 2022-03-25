@@ -1,13 +1,8 @@
-use crate::{
-  command_ext::{CommandExt, ExitStatusExt},
-  result_ext::{ErrorExt, ResultExt},
-  PROJECT_ROOT,
-};
+use crate::{command_ext::CommandExt, result_ext::ResultExt, PROJECT_ROOT};
 use clap::Parser;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::{
-  env,
   io::{self, Write},
   path::Path,
   process,
@@ -42,18 +37,7 @@ pub fn main(Cli { test }: Cli) -> ! {
     process::exit(0);
   }
 
-  // generate the new snapshots and suppress output
-  let output = cargo().args(["insta", "test"]).output().exit_on_err();
-  output.status.exit_on_err_with(|| {
-    io::stdout().write_all(&output.stdout).unwrap();
-    io::stderr().write_all(&output.stderr).unwrap();
-  });
-
-  cargo().args(["insta", "review"]).exec().exit();
-}
-
-fn cargo() -> Command {
-  env::var_os("CARGO").map_or_else(|| Command::new("cargo"), Command::new)
+  crate::insta::main(crate::insta::Cli::default());
 }
 
 fn fix_eof(path: &Path) -> Result<(), io::Error> {
