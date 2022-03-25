@@ -1,21 +1,21 @@
-use chip_snapshot_tests::{assert_snapshot, run_cases};
+use chip_snapshot_tests::{assert_snapshot, cases, run_case};
 use std::fmt::{self, Write};
 use tree_sitter::{Parser, Point, Tree, TreeCursor};
 
-#[chip_test_harness::nextest_main]
-fn main() {
+#[chip_test_harness::nextest_main(snapshot)]
+fn main(name: String) {
   let mut parser = Parser::new();
   parser
     .set_language(tree_sitter_chip::language())
     .expect("assign language to parser");
 
-  run_cases(|source| {
-    parser.reset();
-    let tree = parser
-      .parse(&source, None)
-      .expect("parse snapshot test case");
-    assert_snapshot!(print(&tree, &source).trim());
-  });
+  let source = run_case(&name);
+
+  parser.reset();
+  let tree = parser
+    .parse(&source, None)
+    .expect("parse snapshot test case");
+  assert_snapshot!(print(&tree, &source).trim());
 }
 
 pub fn print(tree: &Tree, source: &str) -> String {

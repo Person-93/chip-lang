@@ -8,6 +8,7 @@ publish = false
 proc-macro = true
 
 [dependencies]
+darling = "0.13.1"
 proc-macro2 = "1.0.36"
 quote = "1.0.16"
 
