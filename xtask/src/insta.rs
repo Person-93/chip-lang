@@ -1,5 +1,6 @@
-use crate::{CommandExt, ErrorExt, Parser, ResultExt};
+use clap::Parser;
 use std::{env, process::Command};
+use xtask_utils::prelude::*;
 
 /// Run `cargo nextest run` then `cargo insta review`
 #[derive(Default, Parser)]

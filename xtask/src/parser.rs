@@ -1,4 +1,5 @@
-use crate::{CommandExt, Parser, ResultExt, PROJECT_ROOT};
+use crate::PROJECT_ROOT;
+use clap::Parser;
 use std::{
   fs::File,
   io::{self, Read, Seek, SeekFrom, Write},
@@ -7,6 +8,7 @@ use std::{
   process::Command,
   slice,
 };
+use xtask_utils::prelude::*;
 
 /// Generate the tree-sitter parser and optionally review the snapshot tests
 #[derive(Parser)]

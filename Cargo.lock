@@ -630,7 +630,13 @@ dependencies = [
  "cargo_metadata",
  "clap",
  "console",
+ "xtask-utils",
 ]
+
+[[package]]
+name = "xtask-utils"
+version = "0.1.0"
+source = "git+https://github.com/Person-93/xtask-utils?tag=v0.1#52b4a5545db05d40a7068577d0d1cf72c691e34a"
 
 [[package]]
 name = "yaml-rust"

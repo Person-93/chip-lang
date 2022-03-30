@@ -1,9 +1,13 @@
 #![forbid(unsafe_code)]
 
-use clap::{Parser, Subcommand};
-use util::*;
+#[macro_use]
+extern crate xtask_utils;
 
-mod util;
+use clap::{Parser, Subcommand};
+use std::{
+  panic::{self, PanicInfo},
+  process,
+};
 
 #[derive(Parser)]
 struct Cli {
@@ -17,3 +21,9 @@ tasks! {
   parser
   safety_check
 }
+
+fn main() -> ! {
+  Cli::parse().task.run()
+}
+
+const PROJECT_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../");

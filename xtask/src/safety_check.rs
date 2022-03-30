@@ -1,10 +1,11 @@
-use crate::{Parser, ResultExt};
 use cargo_metadata::{MetadataCommand, Target};
+use clap::Parser;
 use console::style;
 use std::{
   fs::File,
   io::{BufRead, BufReader},
 };
+use xtask_utils::prelude::*;
 
 const ALLOWED: &[&str] = &["chipc-arena", "tree-sitter-chip"];
 

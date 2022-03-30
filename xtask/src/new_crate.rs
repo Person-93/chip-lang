@@ -1,5 +1,7 @@
-use crate::{Parser, ResultExt, PROJECT_ROOT};
+use crate::PROJECT_ROOT;
+use clap::Parser;
 use std::{fs, path::Path, process};
+use xtask_utils::prelude::*;
 
 /// Add a new crate in the compiler directory
 #[derive(Parser)]
