@@ -126,6 +126,17 @@ name = "chipc-hir"
 version = "0.0.0"
 dependencies = [
  "chipc-arena",
+ "chipc-macros",
+]
+
+[[package]]
+name = "chipc-macros"
+version = "0.0.0"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
