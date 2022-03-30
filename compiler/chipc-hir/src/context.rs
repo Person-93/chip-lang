@@ -1,6 +1,6 @@
 use crate::{
-  Expr, ExternBlock, ExternItem, GenericArg, HirId, HirIdFactory, Identifier,
-  Infer, Item, LetBinding, Node, Package, Path, PathSegment, Statement, Type,
+  Expr, GenericArg, HirId, HirIdFactory, Identifier, Infer, Item, LetBinding,
+  Node, Package, Path, PathSegment, Statement, Type,
 };
 use std::{
   cell::{Cell, RefCell},
@@ -22,9 +22,8 @@ chipc_arena::declare_arena! {
       infers: Infer<'hir>,
     }
     dropless {
-      Package<'hir> Item<'hir> ExternBlock<'hir> Identifier<'hir> Type<'hir>
-      ExternItem<'hir> Statement<'hir> LetBinding<'hir> Path<'hir>
-      PathSegment<'hir> GenericArg<'hir>
+      Package<'hir> Item<'hir> Identifier<'hir> Type<'hir> Statement<'hir>
+      LetBinding<'hir> Path<'hir>PathSegment<'hir> GenericArg<'hir>
     }
   }
 }

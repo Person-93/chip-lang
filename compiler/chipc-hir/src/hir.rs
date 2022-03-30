@@ -32,7 +32,6 @@ create_node_enum! {
   pub enum Node {
     Package,
     Function,
-    ExternBlock,
     LetBinding,
     Infer,
     Path,
@@ -47,7 +46,6 @@ impl<'hir> Node<'hir> {
     match self {
       Node::Package(_) => HirId::ROOT_ID,
       Node::Function(Function { id, .. })
-      | Node::ExternBlock(ExternBlock { id, .. })
       | Node::LetBinding(LetBinding { id, .. })
       | Node::Infer(Infer { id, .. })
       | Node::Path(Path { id, .. })
@@ -64,14 +62,12 @@ pub struct Package<'hir> {
 
 pub enum Item<'hir> {
   Function(Function<'hir>),
-  ExternBlock(ExternBlock<'hir>),
 }
 
 impl<'hir> Item<'hir> {
   pub fn id(&self) -> HirId<'hir> {
     match self {
-      Item::Function(Function { id, .. })
-      | Item::ExternBlock(ExternBlock { id, .. }) => *id,
+      Item::Function(Function { id, .. }) => *id,
     }
   }
 }
@@ -85,14 +81,6 @@ pub struct Function<'hir> {
   pub body: Option<BodyId<'hir>>,
 }
 
-pub struct ExternBlock<'hir> {
-  pub id: HirId<'hir>,
-  pub items: &'hir [ExternItem<'hir>],
-}
-
-pub enum ExternItem<'hir> {
-  Function(Function<'hir>),
-}
 
 pub struct FnSig<'hir> {
   pub constness: Constness,

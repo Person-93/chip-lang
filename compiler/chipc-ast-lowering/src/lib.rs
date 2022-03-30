@@ -3,17 +3,20 @@
 use chipc_arena::Arena;
 use chipc_ast::{
   Annotated, Ast, Expr as AstExpr, ExternItem, FunctionModifierKind,
-  GenericArg as AstGenericArg, Item, Literal as AstLiteral,
+  GenericArg as AstGenericArg, Item as AstItem, Literal as AstLiteral,
   PathStart as AstPathStart, StatementKind, StrLit, Type as AstType,
   VisibilityRestriction,
 };
 use chipc_hir::{
   Abi, Constness, Expr, Extern, FnSig, GenericArg, HirArena, HirContext, HirId,
-  HirIdFactory, Identifier, Infer, Literal, LiteralKind, Node, Nodes, NumLit,
-  NumLitState, Package, PathSegment, PathStart, Scopes, SelfType, Type,
+  HirIdFactory, Identifier, Infer, Item, Literal, LiteralKind, Node, Nodes,
+  NumLit, NumLitState, Package, PathSegment, PathStart, Scopes, SelfType, Type,
   Unsafety, Visibility,
 };
-use std::cell::{Cell, RefCell};
+use std::{
+  cell::{Cell, RefCell},
+  iter,
+};
 
 pub fn lower_package<'ast: 'hir, 'hir>(
   ast: &'hir Ast<'ast>,
@@ -39,7 +42,7 @@ struct LoweringContext<'ast: 'hir, 'hir> {
 impl<'ast: 'hir, 'hir> LoweringContext<'ast, 'hir> {
   fn lower_package(self) -> HirContext<'hir> {
     let items = self.ast.root().items().map(|item| self.lower_item(item));
-    let items = self.arena.alloc_iter(items);
+    let items = self.arena.alloc_iter(items.flatten());
 
     let root = Package { items };
     let root = self.insert_node(root);
@@ -47,16 +50,15 @@ impl<'ast: 'hir, 'hir> LoweringContext<'ast, 'hir> {
     HirContext::new(self.arena, self.nodes.into_inner(), root, self.id_factory)
   }
 
-  fn lower_item(&self, item: chipc_ast::Item<'ast>) -> chipc_hir::Item<'hir> {
+  fn lower_item(
+    &self,
+    item: AstItem<'ast>,
+  ) -> Box<dyn Iterator<Item = Item<'hir>> + '_> {
     match item {
-      Item::Function(function) => {
-        let function = self.lower_function(function);
-        chipc_hir::Item::Function(function)
-      }
-      Item::ExternBlock(block) => {
-        let block = self.lower_extern_block(block);
-        chipc_hir::Item::ExternBlock(block)
-      }
+      AstItem::Function(function) => Box::new(iter::once_with(move || {
+        Item::Function(self.lower_function(function))
+      })),
+      AstItem::ExternBlock(block) => Box::new(self.lower_extern_block(block)),
     }
   }
 
@@ -106,21 +108,14 @@ impl<'ast: 'hir, 'hir> LoweringContext<'ast, 'hir> {
   fn lower_extern_block(
     &self,
     block: chipc_ast::ExternBlock<'ast>,
-  ) -> chipc_hir::ExternBlock<'hir> {
+  ) -> impl Iterator<Item = Item<'hir>> + '_ {
     let abi = self.lower_abi(block.abi());
 
-    let items = block.items().map(|item| match item {
+    block.items().map(move |item| match item {
       ExternItem::Function(function) => {
-        let function = self.lower_extern_function(function, abi);
-        chipc_hir::ExternItem::Function(function)
+        Item::Function(self.lower_extern_function(function, abi))
       }
-    });
-    let items = self.arena.alloc_iter(items);
-
-    chipc_hir::ExternBlock {
-      id: self.id_factory.next_id(),
-      items,
-    }
+    })
   }
 
   fn lower_extern_function(
