@@ -1,4 +1,5 @@
-use crate::{BodyId, HirId};
+use crate::{BodyId, HirContext, HirId, HirPretty, PrettyOutput};
+use chipc_macros::HirPretty;
 use std::{
   cell::Cell,
   cmp::{max, min},
@@ -56,10 +57,14 @@ impl<'hir> Node<'hir> {
   }
 }
 
+#[derive(HirPretty)]
 pub struct Package<'hir> {
+  #[pretty(children(newline))]
   pub items: &'hir [Item<'hir>],
 }
 
+#[derive(HirPretty)]
+#[pretty(transparent)]
 pub enum Item<'hir> {
   Function(Function<'hir>),
 }
@@ -72,15 +77,50 @@ impl<'hir> Item<'hir> {
   }
 }
 
+#[derive(HirPretty)]
+#[pretty(fmt = "{vis} {sig} {body}")]
 pub struct Function<'hir> {
   pub id: HirId<'hir>,
+  #[pretty(skip)]
   pub name: Identifier<'hir>,
   pub vis: Visibility<'hir>,
+  #[pretty(fmt(with("FnSig::format", "Some((name, params))")))]
   pub sig: FnSig<'hir>,
+  #[pretty(skip)]
   pub params: &'hir [Identifier<'hir>],
+  #[pretty(fmt(with("print_fn_body", "")))]
   pub body: Option<BodyId<'hir>>,
 }
 
+fn print_fn_body<'hir>(
+  body: &Option<BodyId<'hir>>,
+  ctx: &HirContext<'hir>,
+) -> PrettyOutput {
+  body.map_or_else(PrettyOutput::default, |body| match ctx.get_body(body) {
+    Expr::Codeblock(block)
+      if block.statements.is_empty() && block.trailing.is_none() =>
+    {
+      PrettyOutput::new(String::from(": ()"))
+    }
+    Expr::Codeblock(block) if block.statements.is_empty() => {
+      let mut pretty_output = String::from(": ");
+      pretty_output += &block
+        .trailing
+        .unwrap()
+        .pretty_print(ctx)
+        .into_simple_string();
+      PrettyOutput::new(pretty_output)
+    }
+    Expr::Codeblock(block) => PrettyOutput::default()
+      .add_children(false, block.statements, ctx)
+      .add_child(false, block.trailing, ctx),
+    expr => {
+      let mut pretty_output = String::from(": ");
+      pretty_output += &expr.pretty_print(ctx).into_simple_string();
+      PrettyOutput::new(pretty_output)
+    }
+  })
+}
 
 pub struct FnSig<'hir> {
   pub constness: Constness,
@@ -90,35 +130,128 @@ pub struct FnSig<'hir> {
   pub output: &'hir Type<'hir>,
 }
 
-pub enum Visibility<'hir> {
-  Public,
-  Private,
-  Restricted { scope: HirId<'hir> },
+impl<'hir> FnSig<'hir> {
+  fn format(
+    &self,
+    ctx: &HirContext<'hir>,
+    info: Option<(&Identifier<'hir>, &'hir [Identifier<'hir>])>,
+  ) -> PrettyOutput {
+    let Self {
+      constness,
+      unsafety,
+      extern_,
+      inputs,
+      output,
+    } = self;
+
+    let mut pretty_output = String::new();
+
+    if *constness == Constness::Yes {
+      pretty_output += "const";
+    }
+    if let Extern::Yes(abi) = extern_ {
+      if !pretty_output.is_empty() {
+        pretty_output.push(' ');
+      }
+      pretty_output += "extern";
+      match abi {
+        Abi::Default => {}
+        Abi::C => pretty_output += " \"C\"",
+        Abi::Invalid => pretty_output += " <INVALID-ABI>",
+      }
+    } else if *unsafety == Unsafety::Yes {
+      if !pretty_output.is_empty() {
+        pretty_output.push(' ');
+      }
+      pretty_output += "unsafe";
+    }
+
+    if !pretty_output.is_empty() {
+      pretty_output.push(' ');
+    }
+    pretty_output += "fn";
+    if let Some(name) = info.map(|info| info.0) {
+      pretty_output.push(' ');
+      pretty_output += name.value;
+    }
+    pretty_output.push('(');
+
+    match info.map(|info| info.1) {
+      None => {
+        let mut inputs = inputs.iter();
+        if let Some(input) = inputs.next() {
+          pretty_output += &input.as_simple_string(ctx);
+        }
+        for input in inputs {
+          pretty_output += ", ";
+          pretty_output += &input.as_simple_string(ctx);
+        }
+      }
+
+      Some(params) => {
+        let mut params = params.iter().zip(inputs.iter());
+        if let Some((ident, ty)) = params.next() {
+          pretty_output += ident.value;
+          pretty_output += ": ";
+          pretty_output += &ty.as_simple_string(ctx);
+        }
+
+        for (ident, ty) in params {
+          pretty_output += ", ";
+          pretty_output += &ident.as_simple_string(ctx);
+          pretty_output += ": ";
+          pretty_output += &ty.as_simple_string(ctx);
+        }
+      }
+    }
+
+    pretty_output += ") -> ";
+    pretty_output += &output.as_simple_string(ctx);
+
+    PrettyOutput::new(pretty_output)
+  }
 }
 
+#[derive(HirPretty)]
+pub enum Visibility<'hir> {
+  #[pretty(fmt = "pub")]
+  Public,
+  #[pretty(fmt = "priv")]
+  Private,
+  #[pretty(fmt = "pub()")]
+  Restricted {
+    #[pretty(skip)]
+    scope: HirId<'hir>, // TODO pretty-print scope of visibility restriction
+  },
+}
+
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Constness {
   Yes,
   No,
 }
 
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Unsafety {
   Yes,
   No,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Extern {
   Yes(Abi),
   No,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Abi {
   Default,
   C,
   Invalid,
 }
 
+#[derive(HirPretty)]
+#[pretty(transparent)]
 pub enum Expr<'hir> {
   Literal(Literal<'hir>),
   Tuple(TupleExpression<'hir>),
@@ -143,32 +276,47 @@ impl<'hir> Expr<'hir> {
   }
 }
 
+#[derive(HirPretty)]
+#[pretty(transparent)]
 pub struct Literal<'hir> {
   pub id: HirId<'hir>,
   pub kind: LiteralKind<'hir>,
 }
 
+#[derive(HirPretty)]
 pub enum LiteralKind<'hir> {
+  #[pretty(fmt = "\"{0:d}\"")]
   Str(&'hir str),
+  #[pretty(fmt = "{0:d}")]
   Bool(bool),
+  #[pretty(transparent)]
   Num(NumLit),
 }
 
+#[derive(HirPretty)]
+#[pretty(fmt = "NumLit({dec_part:d}{float_part:d?} - type:{state})")]
 pub struct NumLit {
   pub dec_part: u128,
   pub float_part: Option<u128>,
   pub state: Cell<NumLitState>,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, HirPretty)]
 #[must_use]
 pub enum NumLitState {
+  #[pretty(fmt = "???")]
   Unspecified,
+  #[pretty(fmt = "f{0}")]
   Float(FloatBits),
+  #[pretty(fmt = "i{0}")]
   Signed(IntBitsRange),
+  #[pretty(fmt = "u{0}")]
   Unsigned(IntBitsRange),
+  #[pretty(fmt = "isize")]
   ISize,
+  #[pretty(fmt = "usize")]
   USize,
+  #[pretty(fmt = "<INVALID>")]
   Err,
 }
 
@@ -288,10 +436,13 @@ impl NumLitState {
   }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, HirPretty)]
 pub enum FloatBits {
+  #[pretty(fmt = "32")]
   ThirtyTwo,
+  #[pretty(fmt = "64")]
   SixtyFour,
+  #[pretty(fmt = "??")]
   Unspecified,
 }
 
@@ -299,6 +450,20 @@ pub enum FloatBits {
 pub struct IntBitsRange {
   pub hi: IntBits,
   pub lo: IntBits,
+}
+
+impl HirPretty<'_> for IntBitsRange {
+  fn pretty_print(&self, ctx: &HirContext<'_>) -> PrettyOutput {
+    if self.hi == self.lo {
+      self.hi.pretty_print(ctx)
+    } else {
+      PrettyOutput::new(format!(
+        "{}..{}",
+        self.lo.as_simple_string(ctx),
+        self.hi.as_simple_string(ctx),
+      ))
+    }
+  }
 }
 
 impl IntBitsRange {
@@ -338,12 +503,17 @@ impl From<IntBits> for IntBitsRange {
   }
 }
 
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, HirPretty)]
 pub enum IntBits {
+  #[pretty(fmt = "8")]
   Eight,
+  #[pretty(fmt = "16")]
   Sixteen,
+  #[pretty(fmt = "32")]
   ThirtyTwo,
+  #[pretty(fmt = "64")]
   SixtyFour,
+  #[pretty(fmt = "128")]
   OneTwentyEight,
 }
 
@@ -352,22 +522,30 @@ impl IntBits {
   pub const MAX: Self = IntBits::OneTwentyEight;
 }
 
+#[derive(HirPretty)] // TODO pretty print tuple expression
 pub struct TupleExpression<'hir> {
   pub id: HirId<'hir>,
   pub elements: &'hir [Expr<'hir>],
 }
 
+#[derive(HirPretty)]
+#[pretty(fmt = "codeblock")]
 pub struct Codeblock<'hir> {
   pub id: HirId<'hir>,
   pub statements: &'hir [Statement<'hir>],
   pub trailing: Option<&'hir Expr<'hir>>,
 }
 
+#[derive(HirPretty)]
+#[pretty(transparent)]
 pub enum Statement<'hir> {
   Expr(&'hir Expr<'hir>),
   LetBinding(&'hir LetBinding<'hir>),
 }
 
+// TODO optional colon in pretty printed let-binding
+#[derive(HirPretty)]
+#[pretty(fmt = "let {ident}:{type_} := {value}")]
 pub struct LetBinding<'hir> {
   pub id: HirId<'hir>,
   pub ident: Identifier<'hir>,
@@ -375,6 +553,8 @@ pub struct LetBinding<'hir> {
   pub value: &'hir Expr<'hir>,
 }
 
+#[derive(HirPretty)]
+#[pretty(transparent)]
 pub enum Type<'hir> {
   Basic(BasicType<'hir>),
   Unit(Unit<'hir>),
@@ -404,48 +584,122 @@ pub struct BasicType<'hir> {
   pub generics: &'hir [GenericArg<'hir>],
 }
 
+impl<'hir> HirPretty<'hir> for BasicType<'hir> {
+  fn pretty_print(&self, ctx: &HirContext<'hir>) -> PrettyOutput {
+    let Self {
+      id: _,
+      path,
+      generics,
+    } = self;
+
+    let mut pretty_output = path.pretty_print(ctx).into_simple_string();
+    if !generics.is_empty() {
+      pretty_output += "::<";
+      for generic in generics.iter() {
+        pretty_output += &generic.pretty_print(ctx).into_simple_string();
+      }
+      pretty_output.push('>');
+    }
+
+    PrettyOutput::new(pretty_output)
+  }
+}
+
 pub struct TupleType<'hir> {
   pub id: HirId<'hir>,
   pub elements: &'hir [Type<'hir>],
 }
 
+impl<'hir> HirPretty<'hir> for TupleType<'hir> {
+  fn pretty_print(&self, ctx: &HirContext<'hir>) -> PrettyOutput {
+    let mut pretty_output = String::from('(');
+    for element in self.elements {
+      pretty_output += &element.pretty_print(ctx).into_simple_string();
+    }
+    pretty_output.push(')');
+    PrettyOutput::new(pretty_output)
+  }
+}
+
+#[derive(HirPretty)]
+#[pretty(transparent)]
 pub struct FunctionType<'hir> {
   pub id: HirId<'hir>,
+  #[pretty(fmt(with("FnSig::format", "None")))]
   pub sig: FnSig<'hir>,
 }
 
+#[derive(HirPretty)]
+#[pretty(fmt = "Self")]
 pub struct SelfType<'hir> {
   pub id: HirId<'hir>,
 }
 
+#[derive(HirPretty)]
+#[pretty(fmt = "()")]
 pub struct Unit<'hir> {
   pub id: HirId<'hir>,
 }
 
+#[derive(HirPretty)]
+#[pretty(transparent)]
 pub enum GenericArg<'hir> {
   Infer(&'hir Infer<'hir>),
   Expr(&'hir Expr<'hir>),
 }
 
+#[derive(HirPretty)]
+#[pretty(fmt = "_")]
 pub struct Infer<'hir> {
   pub id: HirId<'hir>,
 }
 
+#[derive(HirPretty)]
+#[pretty(fmt = "{start}{segments}")]
 pub struct Path<'hir> {
   pub id: HirId<'hir>,
   pub start: PathStart<'hir>,
+  #[pretty(fmt(with("print_segments", "")))]
   pub segments: &'hir [PathSegment<'hir>],
 }
 
+fn print_segments<'hir>(
+  segments: &'hir [PathSegment<'hir>],
+  ctx: &HirContext<'hir>,
+) -> PrettyOutput {
+  let mut pretty_output = String::new();
+  for segment in segments {
+    pretty_output += "::";
+    pretty_output += &segment.pretty_print(ctx).into_simple_string();
+  }
+  PrettyOutput::new(pretty_output)
+}
+
+#[derive(HirPretty)]
+// TODO pretty-print PathStart
+//  - lookup scope if it's scoped
 pub enum PathStart<'hir> {
+  #[pretty(fmt = "{rooted}{segment}")]
   Segment {
+    #[pretty(fmt(with("print_rooted", "")))]
     rooted: bool,
     segment: PathSegment<'hir>,
   },
-  Scoped(HirId<'hir>),
+  Scoped(#[pretty(skip)] HirId<'hir>),
+  #[pretty(fmt = "<INVALID-PATH-START>")]
   Err,
 }
 
+fn print_rooted(rooted: &bool, _: &HirContext<'_>) -> PrettyOutput {
+  if *rooted {
+    PrettyOutput::new("::".to_string())
+  } else {
+    PrettyOutput::default()
+  }
+}
+
+#[derive(HirPretty)]
+#[pretty(fmt = "{ident}")]
 pub struct PathSegment<'hir> {
   pub ident: Identifier<'hir>,
 }
@@ -453,4 +707,10 @@ pub struct PathSegment<'hir> {
 pub struct Identifier<'hir> {
   pub id: HirId<'hir>,
   pub value: &'hir str,
+}
+
+impl HirPretty<'_> for Identifier<'_> {
+  fn pretty_print(&self, _: &HirContext<'_>) -> PrettyOutput {
+    PrettyOutput::new(String::from(self.value))
+  }
 }
