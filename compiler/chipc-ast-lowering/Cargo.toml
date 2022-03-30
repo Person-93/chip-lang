@@ -8,3 +8,11 @@ publish = false
 chipc-ast = { path = "../chipc-ast" }
 chipc-arena = { path = "../chipc-arena" }
 chipc-hir = { path = "../chipc-hir" }
+
+[dev-dependencies]
+chip-test-harness = { path = "../../tests/harness" }
+chip-snapshot-tests = { path = "../../tests/snapshot" }
+
+[[test]]
+name = "snapshot"
+harness = false

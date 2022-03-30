@@ -116,6 +116,8 @@ dependencies = [
 name = "chipc-ast-lowering"
 version = "0.0.0"
 dependencies = [
+ "chip-snapshot-tests",
+ "chip-test-harness",
  "chipc-arena",
  "chipc-ast",
  "chipc-hir",
