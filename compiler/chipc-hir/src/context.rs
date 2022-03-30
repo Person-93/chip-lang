@@ -1,6 +1,6 @@
 use crate::{
-  Expr, GenericArg, HirId, HirIdFactory, Identifier, Infer, Item, LetBinding,
-  Node, Package, Path, PathSegment, Statement, Type,
+  BodyId, Expr, GenericArg, HirId, HirIdFactory, Identifier, Infer, Item,
+  LetBinding, Node, Package, Path, PathSegment, Statement, Type,
 };
 use std::{
   cell::{Cell, RefCell},
@@ -57,6 +57,13 @@ impl<'hir> HirContext<'hir> {
 
   pub fn infers(&self) -> impl Iterator<Item = &Infer<'hir>> {
     self.arena.infers.iter()
+  }
+
+  pub fn get_body(&self, id: BodyId<'hir>) -> &'hir Expr<'hir> {
+    match self.nodes.0.get(&id.0).unwrap() {
+      Node::Expr(expr) => expr,
+      _ => unreachable!(),
+    }
   }
 }
 
@@ -155,12 +162,9 @@ impl<'hir> Scopes<'hir> {
     assert!(!scope.is_mod);
 
     let original_block = self.block_scope.replace(id);
-    scopes
-      .get(&original_block)
-      .unwrap()
-      .mods
-      .borrow_mut()
-      .push(id);
+    if let Some(parent) = scopes.get(&original_block) {
+      parent.mods.borrow_mut().push(id);
+    }
     drop(scopes);
     let t = f();
     self.block_scope.set(original_block);
