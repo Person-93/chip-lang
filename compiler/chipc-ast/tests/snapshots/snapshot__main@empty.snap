@@ -1,7 +1,6 @@
 ---
 source: compiler/chipc-ast/tests/snapshot.rs
-assertion_line: 10
+assertion_line: 11
 expression: printer.0.trim()
-input_file: tests/snapshot/src/cases/empty.chip
 ---
 file

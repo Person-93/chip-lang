@@ -25,7 +25,7 @@ pub fn main(
     tokens.extend(err);
     return Err(tokens);
   }
-  let new_main: ItemFn = new_main(&config, item_fn);
+  let new_main = new_main(&config, item_fn);
   Ok(new_main.into_token_stream())
 }
 
@@ -37,26 +37,65 @@ fn new_main(config: &Config, original_main: ItemFn) -> ItemFn {
 
   parse_quote_spanned! {Span::mixed_site() =>
     fn #ident() #output {
-      extern crate std;
       use std::{env, process};
 
-      const IGNORE: &[&str] = &["-q", "--quiet", "--nocapture"];
-      const SKIP: &[&str] = &["--format"];
+      const IGNORED_ARGS: &[&str] = &["quiet", "nocapture"];
+      const IGNORED_FLAGS: &str = "q";
+      const SKIP: &[&str] = &["format"];
 
-      let mut args =
-        env::args()
-          .skip(1)
-          .scan(false, |should_skip, arg| {
-        if *should_skip {
-          *should_skip = false;
-          None
-        } else if SKIP.contains(&arg.as_str()) {
-          *should_skip = true;
-          None
-        } else if IGNORE.contains(&arg.as_str()) {
-          None
+      let mut raw_args = env::args().skip(1);
+
+      let mut args = raw_args
+        .by_ref()
+        .scan(false, |should_skip, mut arg| {
+        if arg.starts_with("--") {
+          arg.replace_range(0..2, "");
+
+          if *should_skip {
+            eprintln!("expected value found '--{}'", arg);
+            process::exit(1);
+          }
+
+          let has_value = match arg.find('=') {
+            Some(idx) => {
+              arg.truncate(idx);
+              true
+            }
+            None => false,
+          };
+
+          if SKIP.contains(&arg.as_str()) {
+            *should_skip = has_value;
+            None
+          } else if IGNORED_ARGS.contains(&arg.as_str()) {
+            None
+          } else {
+            Some(arg)
+          }
+        } else if arg.starts_with('-') {
+          arg.remove(0);
+
+          if *should_skip {
+            eprintln!("expected value found '-{}'", arg);
+            process::exit(1);
+          }
+
+          let flag = match arg.chars().next() {
+            Some(flag) => flag,
+            None => {
+              eprintln!("expected arg or flag found '-'");
+              process::exit(1);
+            }
+          };
+
+          if IGNORED_FLAGS.contains(flag) {
+            None
+          } else {
+            Some(arg)
+          }
         } else {
-          Some(arg)
+          eprintln!("unexpected `{}` in command line args", arg);
+          process::exit(1);
         }
       });
 
@@ -73,8 +112,8 @@ fn new_main(config: &Config, original_main: ItemFn) -> ItemFn {
 fn initial_match_arms(config: &Config) -> TokenStream {
   let run_main = run_main(config);
   quote_spanned! {Span::mixed_site() =>
-    Some(arg) if arg == "--list" => {
-      if !args.any(|arg| arg == "--ignored") {
+    Some(arg) if arg == "list" => {
+      if !raw_args.any(|arg| arg == "--ignored") {
         for case in cases() {
           println!("{}: test", case);
         }
@@ -82,8 +121,9 @@ fn initial_match_arms(config: &Config) -> TokenStream {
       process::exit(0);
     }
 
-    Some(arg) if arg == "--exact" => {
-      let name = args.next().unwrap();
+    Some(arg) if arg == "exact" => {
+      let name = raw_args.next().unwrap();
+      let name = &name;
       #run_main
     }
 
@@ -115,7 +155,7 @@ fn final_match_args(config: &Config, output: &ReturnType) -> TokenStream {
         use std::panic::catch_unwind;
 
         let mut panicked = false;
-        for name in cases() {
+        for ref name in cases() {
           if let Err(_) = catch_unwind(|| #run_main) {
             panicked = true;
           }

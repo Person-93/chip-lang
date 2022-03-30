@@ -5,4 +5,4 @@ edition = "2021"
 publish = false
 
 [dependencies]
-insta = { version = "1.13.0", features = ["glob"] }
+insta = "1.13.0"

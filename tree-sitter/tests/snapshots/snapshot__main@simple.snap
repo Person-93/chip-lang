@@ -1,8 +1,7 @@
 ---
 source: tree-sitter/tests/snapshot.rs
-assertion_line: 17
+assertion_line: 18
 expression: "print(&tree, &source).trim()"
-input_file: tests/snapshot/src/cases/simple.chip
 ---
 file @ 0:0..1:0
   function @ 0:0..0:10

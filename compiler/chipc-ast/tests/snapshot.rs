@@ -1,15 +1,14 @@
-use chip_snapshot_tests::{assert_snapshot, run_cases};
+use chip_snapshot_tests::{assert_snapshot, cases, run_case};
 use chipc_ast::*;
 use std::fmt::{Result, Write};
 
-#[chip_test_harness::nextest_main]
-fn main() {
-  run_cases(|source| {
-    let ast = Ast::parse(&source);
-    let mut printer = AstPrinter(String::new(), &source);
-    printer.print_ast(&ast).unwrap();
-    assert_snapshot!(printer.0.trim());
-  });
+#[chip_test_harness::nextest_main(snapshot)]
+fn main(name: &str) {
+  let source = run_case(name);
+  let ast = Ast::parse(&source);
+  let mut printer = AstPrinter(String::new(), &source);
+  printer.print_ast(&ast).unwrap();
+  assert_snapshot!(printer.0.trim());
 }
 
 struct AstPrinter<'source, T: Write>(T, &'source str);

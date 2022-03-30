@@ -3,13 +3,13 @@ use std::fmt::{self, Write};
 use tree_sitter::{Parser, Point, Tree, TreeCursor};
 
 #[chip_test_harness::nextest_main(snapshot)]
-fn main(name: String) {
+fn main(name: &str) {
   let mut parser = Parser::new();
   parser
     .set_language(tree_sitter_chip::language())
     .expect("assign language to parser");
 
-  let source = run_case(&name);
+  let source = run_case(name);
 
   parser.reset();
   let tree = parser
