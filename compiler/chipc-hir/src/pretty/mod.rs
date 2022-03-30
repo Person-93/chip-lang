@@ -57,7 +57,6 @@ impl PrettyOutput {
     self.source = match self.source {
       Source::Leaf(prefix) => Source::Tree {
         prefix,
-        newline,
         children: iter
           .into_iter()
           .map(|item| PrettyOutput {
@@ -68,7 +67,6 @@ impl PrettyOutput {
       },
       Source::Tree {
         prefix,
-        newline: original_newline,
         mut children,
       } => {
         children.extend(iter.into_iter().map(|item| PrettyOutput {
@@ -76,18 +74,16 @@ impl PrettyOutput {
           ..item.pretty_print(ctx)
         }));
 
-        Source::Tree {
-          prefix,
-          newline: original_newline,
-          children,
-        }
+        Source::Tree { prefix, children }
       }
       Source::Dummy => Source::Tree {
         prefix: String::new(),
-        newline,
         children: iter
           .into_iter()
-          .map(|item| item.pretty_print(ctx))
+          .map(|item| PrettyOutput {
+            newline,
+            ..item.pretty_print(ctx)
+          })
           .collect(),
       },
     };
@@ -109,18 +105,15 @@ impl PrettyOutput {
 
   fn format_impl<'f>(&'f self, formatted: &mut Formatted<'f>, indentation: u8) {
     match &self.source {
-      Source::Leaf(text) => {
+      Source::Leaf(text) if !text.is_empty() => {
         match formatted.last_char() {
           Some(c) if !c.is_whitespace() => formatted.0.push(" "),
           _ => (),
         }
         formatted.0.push(text);
       }
-      Source::Tree {
-        prefix,
-        newline: _,
-        children,
-      } => {
+      Source::Leaf(_) => (),
+      Source::Tree { prefix, children } => {
         let indentation = if prefix.is_empty() {
           indentation
         } else {
@@ -141,14 +134,22 @@ impl PrettyOutput {
         if let Some(child) = children.next() {
           child.format_impl(formatted, indentation);
           previous_newline = child.newline;
+          if formatted.trailing_new_lines() == 0 {
+            formatted.0.push("\n");
+          }
         }
         for child in children {
-          if child.newline && previous_newline {
+          if child.newline
+            && previous_newline
+            && formatted.trailing_new_lines() < 2
+          {
             formatted.0.push("\n");
           }
           previous_newline = child.newline;
           child.format_impl(formatted, indentation);
-          formatted.0.push("\n");
+          if formatted.trailing_new_lines() == 0 {
+            formatted.0.push("\n");
+          }
         }
       }
       Source::Dummy => (),
@@ -162,7 +163,6 @@ enum Source {
   Leaf(String),
   Tree {
     prefix: String,
-    newline: bool,
     children: Vec<PrettyOutput>,
   },
   Dummy,
@@ -195,5 +195,21 @@ impl Formatted<'_> {
 
   fn last_char(&self) -> Option<char> {
     self.0.last().and_then(|s| s.chars().next_back())
+  }
+
+  fn trailing_new_lines(&self) -> usize {
+    let mut newlines = 0;
+
+    'outer: for s in self.0.iter().rev() {
+      for c in s.chars().rev() {
+        match c {
+          '\n' => newlines += 1,
+          '\r' => (),
+          _ => break 'outer,
+        }
+      }
+    }
+
+    newlines
   }
 }

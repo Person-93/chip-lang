@@ -78,7 +78,7 @@ impl<'hir> Item<'hir> {
 }
 
 #[derive(HirPretty)]
-#[pretty(fmt = "{vis} {sig} {body}")]
+#[pretty(fmt = "{vis} {sig}{body}")]
 pub struct Function<'hir> {
   pub id: HirId<'hir>,
   #[pretty(skip)]

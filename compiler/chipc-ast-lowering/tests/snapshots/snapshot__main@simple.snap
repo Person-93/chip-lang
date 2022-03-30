@@ -3,4 +3,4 @@ source: compiler/chipc-ast-lowering/tests/snapshot.rs
 assertion_line: 17
 expression: hir
 ---
-priv fn f() -> () : ()
+priv fn f() -> (): ()
