@@ -14,5 +14,4 @@ chip-test-harness = { path = "../../tests/harness" }
 
 [[test]]
 name = "snapshot"
-path = "tests/snapshot.rs"
 harness = false

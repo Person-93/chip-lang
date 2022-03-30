@@ -17,7 +17,6 @@ path = "bindings/rust/lib.rs"
 
 [[test]]
 name = "snapshot"
-path = "tests/snapshot.rs"
 harness = false
 
 [dependencies]
