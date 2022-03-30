@@ -1,2 +1,5 @@
 /target/
 tmp.rs
+
+# new snapshot files
+*.snap.new
