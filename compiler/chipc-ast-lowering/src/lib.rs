@@ -184,7 +184,16 @@ impl<'ast: 'hir, 'hir> LoweringContext<'ast, 'hir> {
       AstLiteral::Str(lit) => LiteralKind::Str(lit.value(self.ast.source())),
       AstLiteral::Bool(lit) => LiteralKind::Bool(lit.value()),
       AstLiteral::Num(lit) => {
-        let dec_part = lit.digits().value(self.ast.source()).parse().unwrap();
+        let radix = match lit.prefix().map(|node| node.value(self.ast.source()))
+        {
+          Some("0x") => 16,
+          Some("0b") => 2,
+          Some(prefix) => panic!("invalid num lit prefix `{prefix}`"),
+          None => 10,
+        };
+        let dec_part = lit.digits().value(self.ast.source());
+        let dec_part = u128::from_str_radix(dec_part, radix)
+          .unwrap_or_else(|_| panic!("failed parsing num lit `{dec_part}`"));
         let float_part = lit
           .float_part()
           .map(|node| node.value(self.ast.source()).parse().unwrap());
