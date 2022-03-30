@@ -16,6 +16,7 @@ struct Cli {
 }
 
 tasks! {
+  expand
   insta
   new_crate
   parser
