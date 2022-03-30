@@ -91,16 +91,12 @@ module.exports = grammar({
     function_modifier: $ => choice(
       "const",
       "unsafe",
-      alias(
-        seq("extern", optional(field("abi", $.string_literal))),
-        $.extern,
-      ),
+      $.extern,
     ),
 
 
     extern_block: $ => seq(
-      "extern",
-      optional(field("abi", $.string_literal)),
+      $.extern,
       braced(repeat(field("item", $.extern_item))),
     ),
     extern_item: $ => choice($.extern_function),
@@ -111,6 +107,11 @@ module.exports = grammar({
       $.inputs,
       optional(field("output", $.output)),
       ";"
+    ),
+
+    extern: $ => seq(
+      alias("extern", "kw_extern"),
+      optional(field("abi", $.string_literal)),
     ),
 
 

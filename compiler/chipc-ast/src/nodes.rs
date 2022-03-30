@@ -223,7 +223,10 @@ impl<'ast> Extern<'ast> {
 
 impl<'ast> ExternBlock<'ast> {
   pub fn abi(&self) -> Option<StrLit<'ast>> {
-    self.optional_child("abi")
+    let extern_ =
+      Extern::new(self.node().child(0).expect("extern block with no children"))
+        .expect("extern block with no extern node");
+    extern_.optional_child("abi")
   }
 
   pub fn items(&self) -> ExternItemIter<'ast> {

@@ -12,7 +12,8 @@ file
           path: u8
   function
     name: the_answer
-    modifier: extern "C"
+    modifier: extern: str_lit: "C"
+
     output: basic
       path: u8
     body: num_lit: 42

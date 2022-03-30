@@ -282,34 +282,8 @@
           "value": "unsafe"
         },
         {
-          "type": "ALIAS",
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "extern"
-              },
-              {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "FIELD",
-                    "name": "abi",
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "string_literal"
-                    }
-                  },
-                  {
-                    "type": "BLANK"
-                  }
-                ]
-              }
-            ]
-          },
-          "named": true,
-          "value": "extern"
+          "type": "SYMBOL",
+          "name": "extern"
         }
       ]
     },
@@ -317,24 +291,8 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "STRING",
-          "value": "extern"
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "FIELD",
-              "name": "abi",
-              "content": {
-                "type": "SYMBOL",
-                "name": "string_literal"
-              }
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "extern"
         },
         {
           "type": "SEQ",
@@ -425,6 +383,36 @@
         {
           "type": "STRING",
           "value": ";"
+        }
+      ]
+    },
+    "extern": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "STRING",
+            "value": "extern"
+          },
+          "named": false,
+          "value": "kw_extern"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "abi",
+              "content": {
+                "type": "SYMBOL",
+                "name": "string_literal"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },

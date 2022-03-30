@@ -5,8 +5,9 @@ expression: "print(&tree, &source).trim()"
 ---
 file @ 0:0..5:0
   extern_block @ 0:0..2:1
-    extern @ 0:0..0:6
-    abi:string_literal @ 0:7..0:10	"C"
+    extern @ 0:0..0:10
+      kw_extern @ 0:0..0:6
+      abi:string_literal @ 0:7..0:10	"C"
     { @ 0:11..0:12
     item:extern_function @ 1:2..1:21
       fn @ 1:2..1:4
@@ -23,8 +24,9 @@ file @ 0:0..5:0
     } @ 2:0..2:1
   function @ 4:0..4:36
     modifier:function_modifier @ 4:0..4:10
-      extern @ 4:0..4:6
-      abi:extern @ 4:7..4:10	"C"
+      extern @ 4:0..4:10
+        kw_extern @ 4:0..4:6
+        abi:string_literal @ 4:7..4:10	"C"
     fn @ 4:11..4:13
     name:identifier @ 4:14..4:24	the_answer
     ( @ 4:24..4:25

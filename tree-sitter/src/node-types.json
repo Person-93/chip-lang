@@ -200,7 +200,7 @@
     }
   },
   {
-    "type": "extern_block",
+    "type": "extern",
     "named": true,
     "fields": {
       "abi": {
@@ -212,7 +212,13 @@
             "named": true
           }
         ]
-      },
+      }
+    }
+  },
+  {
+    "type": "extern_block",
+    "named": true,
+    "fields": {
       "item": {
         "multiple": true,
         "required": false,
@@ -223,6 +229,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "extern",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -433,18 +449,7 @@
   {
     "type": "function_modifier",
     "named": true,
-    "fields": {
-      "abi": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "extern",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": false,
       "required": false,
@@ -1096,14 +1101,6 @@
     "named": true
   },
   {
-    "type": "extern",
-    "named": true
-  },
-  {
-    "type": "extern",
-    "named": false
-  },
-  {
     "type": "f32",
     "named": false
   },
@@ -1153,6 +1150,10 @@
   },
   {
     "type": "isize",
+    "named": false
+  },
+  {
+    "type": "kw_extern",
     "named": false
   },
   {
