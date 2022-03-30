@@ -181,7 +181,13 @@ impl<T: Write> AstPrinter<'_, T> {
     indentation: u8,
   ) -> Result {
     self.indent(indentation)?;
-    writeln!(self.0, "extern block")?;
+
+    write!(self.0, "extern block")?;
+    if let Some(abi) = extern_block.abi() {
+      write!(self.0, " \"{}\"", abi.value(self.1))?;
+    }
+    writeln!(self.0)?;
+
     let indentation = indentation + 1;
     for item in extern_block.items() {
       match item {

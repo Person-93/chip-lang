@@ -4,7 +4,7 @@ assertion_line: 11
 expression: printer.0.trim()
 ---
 file
-  extern block
+  extern block "C"
     extern function
       name: foreign
       input: n
@@ -12,7 +12,7 @@ file
           path: u8
   function
     name: the_answer
-    modifier: extern
+    modifier: extern "C"
     output: basic
       path: u8
     body: num_lit: 42
