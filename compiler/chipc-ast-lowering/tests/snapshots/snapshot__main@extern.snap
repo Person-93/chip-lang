@@ -5,4 +5,5 @@ expression: hir
 ---
 priv extern "C" fn foreign(n: u8) -> ()
 
-priv extern "C" fn the_answer() -> u8: NumLit(42 - type:???)
+priv extern "C" fn the_answer() -> u8
+  NumLit(42 - type:???)

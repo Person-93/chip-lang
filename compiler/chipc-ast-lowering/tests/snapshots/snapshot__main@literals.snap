@@ -1,0 +1,30 @@
+---
+source: compiler/chipc-ast-lowering/tests/snapshot.rs
+assertion_line: 17
+expression: hir
+---
+priv fn main() -> ()
+  codeblock
+    let number: := NumLit(42 - type:???)
+    let number: := NumLit(42 - type:u8)
+    let number: := NumLit(42 - type:u16)
+    let number: := NumLit(42 - type:u32)
+    let number: := NumLit(42 - type:u64)
+    let number: := NumLit(42 - type:u128)
+    let number: := NumLit(42 - type:usize)
+    let number: := NumLit(42 - type:i8)
+    let number: := NumLit(42 - type:i16)
+    let number: := NumLit(42 - type:i32)
+    let number: := NumLit(42 - type:i64)
+    let number: := NumLit(42 - type:i128)
+    let number: := NumLit(42 - type:isize)
+    let number: := NumLit(42 - type:f32)
+    let number: := NumLit(42 - type:f64)
+    let number: := NumLit(42.0 - type:f??)
+    let number: := NumLit(42.0 - type:f32)
+    let number: := NumLit(42.0 - type:f64)
+    let number: := NumLit(169 - type:???)
+    let number: := NumLit(46118400291 - type:???)
+    let text: := "hello world"
+    let boolean: := true
+    let boolean: := false

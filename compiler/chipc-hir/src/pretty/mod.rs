@@ -54,37 +54,38 @@ impl PrettyOutput {
     iter: impl IntoIterator<Item = T>,
     ctx: &HirContext<'hir>,
   ) -> Self {
-    self.source = match self.source {
-      Source::Leaf(prefix) => Source::Tree {
-        prefix,
-        children: iter
-          .into_iter()
-          .map(|item| PrettyOutput {
-            newline,
-            ..item.pretty_print(ctx)
-          })
-          .collect(),
-      },
-      Source::Tree {
-        prefix,
-        mut children,
-      } => {
-        children.extend(iter.into_iter().map(|item| PrettyOutput {
+    let children = iter
+      .into_iter()
+      .flat_map(|item| -> Box<dyn Iterator<Item = _>> {
+        let mut output = PrettyOutput {
           newline,
           ..item.pretty_print(ctx)
-        }));
+        };
+        output.source = match output.source {
+          Source::Tree { prefix, children } if prefix.is_empty() => {
+            return Box::new(children.into_iter());
+          }
+          source => source,
+        };
+        Box::new(iter::once(output))
+      })
+      .collect();
 
-        Source::Tree { prefix, children }
+    self.source = match self.source {
+      Source::Leaf(prefix) => Source::Tree { prefix, children },
+      Source::Tree {
+        prefix,
+        children: mut original_children,
+      } => {
+        original_children.extend(children);
+        Source::Tree {
+          prefix,
+          children: original_children,
+        }
       }
       Source::Dummy => Source::Tree {
         prefix: String::new(),
-        children: iter
-          .into_iter()
-          .map(|item| PrettyOutput {
-            newline,
-            ..item.pretty_print(ctx)
-          })
-          .collect(),
+        children,
       },
     };
     self
@@ -132,6 +133,9 @@ impl PrettyOutput {
         let mut children = children.iter();
         let mut previous_newline = false;
         if let Some(child) = children.next() {
+          if child.needs_leading_indentation() {
+            formatted.indent(indentation);
+          }
           child.format_impl(formatted, indentation);
           previous_newline = child.newline;
           if formatted.trailing_new_lines() == 0 {
@@ -145,6 +149,9 @@ impl PrettyOutput {
           {
             formatted.0.push("\n");
           }
+          if child.needs_leading_indentation() {
+            formatted.indent(indentation);
+          }
           previous_newline = child.newline;
           child.format_impl(formatted, indentation);
           if formatted.trailing_new_lines() == 0 {
@@ -153,6 +160,14 @@ impl PrettyOutput {
         }
       }
       Source::Dummy => (),
+    }
+  }
+
+  fn needs_leading_indentation(&self) -> bool {
+    match &self.source {
+      Source::Leaf(text) => !text.is_empty(),
+      Source::Tree { prefix, .. } => !prefix.is_empty(),
+      Source::Dummy => false,
     }
   }
 }

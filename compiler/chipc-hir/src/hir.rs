@@ -78,7 +78,7 @@ impl<'hir> Item<'hir> {
 }
 
 #[derive(HirPretty)]
-#[pretty(fmt = "{vis} {sig}{body}")]
+#[pretty(fmt = "{vis} {sig}")]
 pub struct Function<'hir> {
   pub id: HirId<'hir>,
   #[pretty(skip)]
@@ -95,29 +95,18 @@ pub struct Function<'hir> {
 fn print_fn_body<'hir>(
   body: &Option<BodyId<'hir>>,
   ctx: &HirContext<'hir>,
-) -> PrettyOutput {
-  body.map_or_else(PrettyOutput::default, |body| match ctx.get_body(body) {
-    Expr::Codeblock(block)
-      if block.statements.is_empty() && block.trailing.is_none() =>
-    {
-      PrettyOutput::new(String::from(": ()"))
-    }
-    Expr::Codeblock(block) if block.statements.is_empty() => {
-      let mut pretty_output = String::from(": ");
-      pretty_output += &block
-        .trailing
-        .unwrap()
-        .pretty_print(ctx)
-        .into_simple_string();
-      PrettyOutput::new(pretty_output)
-    }
-    Expr::Codeblock(block) => PrettyOutput::default()
-      .add_children(false, block.statements, ctx)
-      .add_child(false, block.trailing, ctx),
-    expr => {
-      let mut pretty_output = String::from(": ");
-      pretty_output += &expr.pretty_print(ctx).into_simple_string();
-      PrettyOutput::new(pretty_output)
+) -> Option<&'hir (dyn HirPretty<'hir> + 'hir)> {
+  body.map(|body| -> &'hir (dyn HirPretty<'hir> + 'hir) {
+    match ctx.get_body(body) {
+      Expr::Codeblock(block)
+        if block.statements.is_empty() && block.trailing.is_none() =>
+      {
+        Unit::UNIT
+      }
+      Expr::Codeblock(block) if block.statements.is_empty() => {
+        block.trailing.unwrap()
+      }
+      expr => expr,
     }
   })
 }
@@ -293,12 +282,26 @@ pub enum LiteralKind<'hir> {
   Num(NumLit),
 }
 
-#[derive(HirPretty)]
-#[pretty(fmt = "NumLit({dec_part:d}{float_part:d?} - type:{state})")]
 pub struct NumLit {
   pub dec_part: u128,
   pub float_part: Option<u128>,
   pub state: Cell<NumLitState>,
+}
+
+impl<'hir> HirPretty<'hir> for NumLit {
+  fn pretty_print(&self, ctx: &HirContext<'hir>) -> PrettyOutput {
+    let NumLit {
+      dec_part,
+      float_part,
+      state,
+    } = self;
+    let float_part = match float_part {
+      Some(float_part) => format!(".{float_part}"),
+      None => String::new(),
+    };
+    let state = state.get().pretty_print(ctx).into_simple_string();
+    PrettyOutput::new(format!("NumLit({dec_part}{float_part} - type:{state})"))
+  }
 }
 
 #[derive(Copy, Clone, HirPretty)]
@@ -532,7 +535,9 @@ pub struct TupleExpression<'hir> {
 #[pretty(fmt = "codeblock")]
 pub struct Codeblock<'hir> {
   pub id: HirId<'hir>,
+  #[pretty(children)]
   pub statements: &'hir [Statement<'hir>],
+  #[pretty(children)]
   pub trailing: Option<&'hir Expr<'hir>>,
 }
 
@@ -639,6 +644,10 @@ pub struct SelfType<'hir> {
 #[pretty(fmt = "()")]
 pub struct Unit<'hir> {
   pub id: HirId<'hir>,
+}
+
+impl<'hir> Unit<'hir> {
+  pub const UNIT: &'hir Self = &Unit { id: HirId::UNIT_ID };
 }
 
 #[derive(HirPretty)]
