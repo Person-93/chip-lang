@@ -10,6 +10,7 @@ use std::{
 pub struct HirContext<'hir> {
   arena: HirArena<'hir>,
   nodes: Nodes<'hir>,
+  pub name: String,
   pub root: &'hir Package<'hir>,
   id_factory: HirIdFactory<'hir>,
 }
@@ -30,6 +31,7 @@ chipc_arena::declare_arena! {
 
 impl<'hir> HirContext<'hir> {
   pub fn new(
+    name: String,
     arena: HirArena<'hir>,
     nodes: Nodes<'hir>,
     root: &'hir Package<'hir>,
@@ -38,6 +40,7 @@ impl<'hir> HirContext<'hir> {
     Self {
       arena,
       nodes,
+      name,
       root,
       id_factory: hir_id_factory,
     }

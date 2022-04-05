@@ -76,12 +76,13 @@ fn empty_parent() {
 }
 
 fn dummy_ctx() -> HirContext<'static> {
-  const PACKAGE: Package = Package { items: &[] };
+  const PACKAGE: &Package = &Package { items: &[] };
 
   HirContext::new(
+    "test-package".to_owned(),
     HirArena::default(),
     Nodes::default(),
-    &PACKAGE,
+    PACKAGE,
     HirIdFactory::default(),
   )
 }

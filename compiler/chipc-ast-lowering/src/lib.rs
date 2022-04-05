@@ -18,7 +18,8 @@ use std::{
   iter,
 };
 
-pub fn lower_package<'ast: 'hir, 'hir>(
+pub fn lower<'ast: 'hir, 'hir>(
+  name: String,
   ast: &'hir Ast<'ast>,
 ) -> HirContext<'hir> {
   LoweringContext {
@@ -28,7 +29,7 @@ pub fn lower_package<'ast: 'hir, 'hir>(
     scopes: Default::default(),
     id_factory: Default::default(),
   }
-  .lower_package()
+  .lower_package(name)
 }
 
 struct LoweringContext<'ast: 'hir, 'hir> {
@@ -40,14 +41,20 @@ struct LoweringContext<'ast: 'hir, 'hir> {
 }
 
 impl<'ast: 'hir, 'hir> LoweringContext<'ast, 'hir> {
-  fn lower_package(self) -> HirContext<'hir> {
+  fn lower_package(self, name: String) -> HirContext<'hir> {
     let items = self.ast.root().items().map(|item| self.lower_item(item));
     let items = self.arena.alloc_iter(items.flatten());
 
     let root = Package { items };
     let root = self.insert_node(root);
 
-    HirContext::new(self.arena, self.nodes.into_inner(), root, self.id_factory)
+    HirContext::new(
+      name,
+      self.arena,
+      self.nodes.into_inner(),
+      root,
+      self.id_factory,
+    )
   }
 
   fn lower_item(
