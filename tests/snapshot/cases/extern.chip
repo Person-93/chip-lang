@@ -2,4 +2,4 @@ extern "C" {
   fn foreign (n: u8);
 }
 
-extern "C" fn the_answer() -> u8: 42
+extern "C" fn the_answer() -> u8: 42u8

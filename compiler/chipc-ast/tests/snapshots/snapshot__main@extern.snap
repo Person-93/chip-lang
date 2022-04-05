@@ -16,4 +16,6 @@ file
 
     output: basic
       path: u8
-    body: num_lit: 42
+    body: num_lit
+      digits: 42
+      suffix: u8

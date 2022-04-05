@@ -22,7 +22,7 @@ file @ 0:0..5:0
       ) @ 1:19..1:20
       ; @ 1:20..1:21
     } @ 2:0..2:1
-  function @ 4:0..4:36
+  function @ 4:0..4:38
     modifier:function_modifier @ 4:0..4:10
       extern @ 4:0..4:10
         kw_extern @ 4:0..4:6
@@ -36,5 +36,6 @@ file @ 0:0..5:0
       path @ 4:30..4:32
         first_segment:identifier @ 4:30..4:32	u8
     : @ 4:32..4:33
-    body:numeric_literal @ 4:34..4:36
+    body:numeric_literal @ 4:34..4:38
       digits:digits @ 4:34..4:36	42
+      suffix:u8 @ 4:36..4:38
