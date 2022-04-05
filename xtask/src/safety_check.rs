@@ -7,7 +7,12 @@ use std::{
 };
 use xtask_utils::prelude::*;
 
-const ALLOWED: &[&str] = &["chipc-arena", "tree-sitter-chip"];
+const ALLOWED: &[&str] = &[
+  // Directly allocates memory
+  "chipc-arena",
+  // Calls an extern function
+  "tree-sitter-chip",
+];
 
 /// Check that all binary and library targets forbid unsafe code
 #[derive(Parser)]
