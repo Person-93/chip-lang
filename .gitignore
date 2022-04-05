@@ -3,3 +3,5 @@ tmp.rs
 
 # new snapshot files
 *.snap.new
+
+compile_commands.json

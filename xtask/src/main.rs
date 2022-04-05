@@ -21,6 +21,7 @@ tasks! {
   new_crate
   parser
   safety_check
+  clang
 }
 
 fn main() -> ! {

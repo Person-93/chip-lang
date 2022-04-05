@@ -1,0 +1,16 @@
+FormatStyle: none
+InheritParentConfig: false
+Checks:
+  bugprone-*,
+  clang-analyzer-*,
+  clang-diagnostic-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -clang-diagnostic-c++17-extensions,
+  -modernize-use-trailing-return-type,
+  -readability-named-parameter,
+HeaderFilterRegex: "compiler/.*/include"
