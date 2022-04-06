@@ -1,0 +1,10 @@
+[package]
+name = "chipc-hir-lowering"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+chipc-arena = {path = "../chipc-arena"}
+chipc-hir = { path = "../chipc-hir" }
+chipc-mir = { path = "../chipc-mir" }

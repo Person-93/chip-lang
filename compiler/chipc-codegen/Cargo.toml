@@ -1,0 +1,27 @@
+[package]
+name = "chipc-codegen"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+links = "chipc-codegen"
+
+[dependencies]
+chipc-mir = { path = "../chipc-mir" }
+cxx = "1.0.66"
+
+[build-dependencies]
+cxx-build = "1.0.66"
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.79"
+
+[dev-dependencies]
+chip-test-harness = { path = "../../tests/harness" }
+chip-snapshot-tests = { path = "../../tests/snapshot" }
+chipc-ast = { path = "../chipc-ast" }
+chipc-ast-lowering = { path = "../chipc-ast-lowering" }
+chipc-hir-lowering = { path = "../chipc-hir-lowering" }
+
+[[test]]
+name = "llvm_ir"
+harness = false

@@ -1,0 +1,42 @@
+---
+source: compiler/chipc-codegen/tests/llvm_ir/main.rs
+assertion_line: 35
+expression: processed
+---
+; ModuleID = 'test-package'
+source_filename = "test-package"
+target datalayout = "<redacted>"
+target triple = "<redacted>"
+
+%Size = type { [redacted] }
+
+define internal void @main() {
+entry:
+  %var = alloca i32, align 4
+  %var1 = alloca i8, align 1
+  %var2 = alloca i16, align 2
+  %var3 = alloca i32, align 4
+  %var4 = alloca i64, align 8
+  %var5 = alloca i128, align 8
+  %var6 = alloca %Size, align 8
+  %var7 = alloca i8, align 1
+  %var8 = alloca i16, align 2
+  %var9 = alloca i32, align 4
+  %var10 = alloca i64, align 8
+  %var11 = alloca i128, align 8
+  %var12 = alloca %Size, align 8
+  %var13 = alloca float, align 4
+  %var14 = alloca double, align 8
+  %var15 = alloca float, align 4
+  %var16 = alloca float, align 4
+  %var17 = alloca double, align 8
+  %var18 = alloca i32, align 4
+  %var19 = alloca i32, align 4
+  %var20 = alloca { i8*, %Size }, align 8
+  %var21 = alloca i1, align 1
+  %var22 = alloca i1, align 1
+  br label %bb
+
+bb:                                               ; preds = %entry
+  ret void
+}

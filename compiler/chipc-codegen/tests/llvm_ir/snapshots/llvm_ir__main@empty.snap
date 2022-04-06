@@ -1,0 +1,9 @@
+---
+source: compiler/chipc-codegen/tests/llvm_ir/main.rs
+assertion_line: 33
+expression: processed
+---
+; ModuleID = 'test-package'
+source_filename = "test-package"
+target datalayout = "<redacted>"
+target triple = "<redacted>"

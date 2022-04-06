@@ -10,6 +10,10 @@ use xtask_utils::prelude::*;
 const ALLOWED: &[&str] = &[
   // Directly allocates memory
   "chipc-arena",
+  // Uses the cxx bridge
+  "chipc-codegen",
+  // Uses the cxx bridge
+  "chipc-mir",
   // Calls an extern function
   "tree-sitter-chip",
 ];
