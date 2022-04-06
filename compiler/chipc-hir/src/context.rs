@@ -1,6 +1,6 @@
 use crate::{
-  BodyId, Expr, GenericArg, HirId, HirIdFactory, Identifier, Infer, Item,
-  LetBinding, Node, Package, Path, PathSegment, Statement, Type,
+  Expr, GenericArg, HirId, HirIdFactory, Identifier, Infer, Item, LetBinding,
+  Node, Package, Path, PathSegment, Statement, Type,
 };
 use std::{
   cell::{Cell, RefCell},
@@ -24,7 +24,7 @@ chipc_arena::declare_arena! {
     }
     dropless {
       Package<'hir> Item<'hir> Identifier<'hir> Type<'hir> Statement<'hir>
-      LetBinding<'hir> Path<'hir>PathSegment<'hir> GenericArg<'hir>
+      LetBinding<'hir> Path<'hir> PathSegment<'hir> GenericArg<'hir>
     }
   }
 }
@@ -60,13 +60,6 @@ impl<'hir> HirContext<'hir> {
 
   pub fn infers(&self) -> impl Iterator<Item = &Infer<'hir>> {
     self.arena.infers.iter()
-  }
-
-  pub fn get_body(&self, id: BodyId<'hir>) -> &'hir Expr<'hir> {
-    match self.nodes.0.get(&id.0).unwrap() {
-      Node::Expr(expr) => expr,
-      _ => unreachable!(),
-    }
   }
 }
 

@@ -1,4 +1,4 @@
-use crate::{BodyId, HirContext, HirId, HirPretty, PrettyOutput};
+use crate::{HirContext, HirId, HirPretty, PrettyOutput};
 use chipc_macros::HirPretty;
 use std::{
   cell::Cell,
@@ -51,7 +51,7 @@ impl<'hir> Node<'hir> {
       | Node::Infer(Infer { id, .. })
       | Node::Path(Path { id, .. })
       | Node::Identifier(Identifier { id, .. }) => *id,
-      Node::Type(ty) => ty.id(),
+      Node::Type(ty) => ty.id().expect("node refers to type with no HirId"),
       Node::Expr(expr) => expr.id(),
     }
   }
@@ -88,27 +88,7 @@ pub struct Function<'hir> {
   pub sig: FnSig<'hir>,
   #[pretty(skip)]
   pub params: &'hir [Identifier<'hir>],
-  #[pretty(fmt(with("print_fn_body", "")))]
-  pub body: Option<BodyId<'hir>>,
-}
-
-fn print_fn_body<'hir>(
-  body: &Option<BodyId<'hir>>,
-  ctx: &HirContext<'hir>,
-) -> Option<&'hir (dyn HirPretty<'hir> + 'hir)> {
-  body.map(|body| -> &'hir (dyn HirPretty<'hir> + 'hir) {
-    match ctx.get_body(body) {
-      Expr::Codeblock(block)
-        if block.statements.is_empty() && block.trailing.is_none() =>
-      {
-        Unit::UNIT
-      }
-      Expr::Codeblock(block) if block.statements.is_empty() => {
-        block.trailing.unwrap()
-      }
-      expr => expr,
-    }
-  })
+  pub body: Option<Body<'hir>>,
 }
 
 pub struct FnSig<'hir> {
@@ -201,6 +181,29 @@ impl<'hir> FnSig<'hir> {
   }
 }
 
+#[derive(Copy, Clone)]
+pub struct Body<'hir> {
+  pub expr: &'hir Expr<'hir>,
+  pub params: &'hir [Identifier<'hir>],
+  pub param_types: &'hir [Type<'hir>],
+}
+
+impl<'hir> HirPretty<'hir> for Body<'hir> {
+  fn pretty_print(&self, ctx: &HirContext<'hir>) -> PrettyOutput {
+    match self.expr {
+      Expr::Codeblock(block)
+        if block.statements.is_empty() && block.trailing.is_none() =>
+      {
+        Unit::UNIT.pretty_print(ctx)
+      }
+      Expr::Codeblock(block) if block.statements.is_empty() => {
+        block.trailing.unwrap().pretty_print(ctx)
+      }
+      expr => expr.pretty_print(ctx),
+    }
+  }
+}
+
 #[derive(HirPretty)]
 pub enum Visibility<'hir> {
   #[pretty(fmt = "pub")]
@@ -259,10 +262,6 @@ impl<'hir> Expr<'hir> {
       | Expr::Unit(Unit { id, .. }) => *id,
     }
   }
-
-  pub fn as_body(&self) -> BodyId<'hir> {
-    BodyId(self.id())
-  }
 }
 
 #[derive(HirPretty)]
@@ -284,7 +283,7 @@ pub enum LiteralKind<'hir> {
 
 pub struct NumLit {
   pub dec_part: u128,
-  pub float_part: Option<u128>,
+  pub float_part: Option<f64>,
   pub state: Cell<NumLitState>,
 }
 
@@ -486,6 +485,14 @@ impl IntBitsRange {
     .is_valid()
   }
 
+  pub fn as_single_val(self) -> Option<IntBits> {
+    (self.hi == self.lo).then(|| self.hi)
+  }
+
+  pub fn contains(self, bits: IntBits) -> bool {
+    self.lo <= bits && bits <= self.hi
+  }
+
   fn is_valid(self) -> Option<Self> {
     (self.hi >= self.lo).then(|| self)
   }
@@ -566,16 +573,18 @@ pub enum Type<'hir> {
   Tuple(TupleType<'hir>),
   Function(FunctionType<'hir>),
   Selph(SelfType<'hir>),
+  Ref(&'hir Type<'hir>),
 }
 
 impl<'hir> Type<'hir> {
-  pub fn id(&self) -> HirId<'hir> {
+  pub fn id(&self) -> Option<HirId<'hir>> {
     match self {
       Type::Basic(BasicType { id, .. })
       | Type::Unit(Unit { id, .. })
       | Type::Tuple(TupleType { id, .. })
       | Type::Function(FunctionType { id, .. })
-      | Type::Selph(SelfType { id, .. }) => *id,
+      | Type::Selph(SelfType { id, .. }) => Some(*id),
+      Type::Ref(_) => None,
     }
   }
 
@@ -670,6 +679,22 @@ pub struct Path<'hir> {
   pub start: PathStart<'hir>,
   #[pretty(fmt(with("print_segments", "")))]
   pub segments: &'hir [PathSegment<'hir>],
+}
+
+impl<'hir> Path<'hir> {
+  pub fn as_ident(&self) -> Option<&'hir str> {
+    self
+      .segments
+      .is_empty()
+      .then(|| match &self.start {
+        PathStart::Segment {
+          segment,
+          rooted: false,
+        } => Some(segment.ident.value),
+        _ => None,
+      })
+      .flatten()
+  }
 }
 
 fn print_segments<'hir>(

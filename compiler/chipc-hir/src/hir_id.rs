@@ -6,12 +6,11 @@ pub struct HirId<'hir>(u32, PhantomData<&'hir ()>, PhantomData<*const ()>);
 impl HirId<'_> {
   pub const ROOT_ID: HirId<'static> = HirId(0, PhantomData, PhantomData);
   pub const UNIT_ID: HirId<'static> = HirId(1, PhantomData, PhantomData);
+  pub const BOOL_ID: HirId<'static> = HirId(2, PhantomData, PhantomData);
+  pub const STR_ID: HirId<'static> = HirId(3, PhantomData, PhantomData);
 
-  const END_RESERVED: u32 = 1;
+  const END_RESERVED: u32 = 3;
 }
-
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct BodyId<'hir>(pub(crate) HirId<'hir>);
 
 pub struct HirIdFactory<'hir>(
   Cell<u32>,

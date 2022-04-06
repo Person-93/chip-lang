@@ -8,10 +8,10 @@ use chipc_ast::{
   VisibilityRestriction,
 };
 use chipc_hir::{
-  Abi, Constness, Expr, Extern, FnSig, GenericArg, HirArena, HirContext, HirId,
-  HirIdFactory, Identifier, Infer, Item, Literal, LiteralKind, Node, Nodes,
-  NumLit, NumLitState, Package, PathSegment, PathStart, Scopes, SelfType, Type,
-  Unsafety, Visibility,
+  Abi, Body, Constness, Expr, Extern, FnSig, GenericArg, HirArena, HirContext,
+  HirId, HirIdFactory, Identifier, Infer, Item, Literal, LiteralKind, Node,
+  Nodes, NumLit, NumLitState, Package, PathSegment, PathStart, Scopes,
+  SelfType, Type, Unsafety, Visibility,
 };
 use std::{
   cell::{Cell, RefCell},
@@ -108,7 +108,11 @@ impl<'ast: 'hir, 'hir> LoweringContext<'ast, 'hir> {
         output: self.lower_output_type(function.output()),
       },
       params,
-      body: Some(expr.as_body()),
+      body: Some(Body {
+        expr,
+        params,
+        param_types: inputs,
+      }),
     }
   }
 
