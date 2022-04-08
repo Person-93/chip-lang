@@ -6,9 +6,21 @@ use syn::{
 };
 
 #[derive(FromMeta)]
+#[darling(and_then = "Config::post_process")]
 struct Config {
   #[darling(default)]
+  with_name: bool,
+  #[darling(default)]
   snapshot: bool,
+}
+
+impl Config {
+  fn post_process(mut self) -> darling::Result<Self> {
+    if self.snapshot {
+      self.with_name = true;
+    }
+    Ok(self)
+  }
 }
 
 pub fn main(
@@ -137,7 +149,7 @@ fn initial_match_arms(config: &Config) -> TokenStream {
 fn final_match_args(config: &Config, output: &ReturnType) -> TokenStream {
   let run_main = run_main(config);
 
-  if config.snapshot {
+  if config.with_name {
     let err = match output {
       ReturnType::Default => None,
       ReturnType::Type(_, ty) => Some(quote_spanned! {ty.span() =>
@@ -179,7 +191,7 @@ fn final_match_args(config: &Config, output: &ReturnType) -> TokenStream {
 }
 
 fn run_main(config: &Config) -> TokenStream {
-  if config.snapshot {
+  if config.with_name {
     quote_spanned! {Span::mixed_site() =>
       {
         chip_snapshot_tests::with_settings!(
