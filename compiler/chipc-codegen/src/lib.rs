@@ -25,6 +25,8 @@ mod ffi {
       s: Pin<&mut CxxString>,
     );
 
+    pub fn emit_obj_file(self: Pin<&CodeGen<'_>>, path: &str);
+
     #[namespace = "chipc::mir"]
     type Package<'mir> = chipc_mir::Package<'mir>;
   }

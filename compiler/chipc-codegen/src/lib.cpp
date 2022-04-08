@@ -4,8 +4,10 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instruction.h"
 #include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Host.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/TargetSelect.h"
@@ -14,8 +16,10 @@
 #include "llvm/Target/TargetOptions.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <iostream>
 
+namespace fs      = std::filesystem;
 namespace codegen = chipc::codegen;
 using chipc::mir::Package;
 using codegen::CodeGen;
@@ -45,6 +49,7 @@ struct CodeGen::Impl {
   llvm::IRBuilder<> builder;
   llvm::Module module;
   llvm::StructType* size_type;
+  llvm::TargetMachine* target_machine;
 };
 
 CodeGen::CodeGen(std::unique_ptr<Impl> pimpl): pimpl{std::move(pimpl)} {}
@@ -66,12 +71,13 @@ CodeGen CodeGen::create(std::string_view name, const Package& package) {
     std::exit(1);
   }
   // TODO get cpu features
-  auto* target_machine =
+  pimpl->target_machine =
       target->createTargetMachine(triple, llvm::sys::getHostCPUName(), "",
                                   llvm::TargetOptions{}, llvm::None);
+  assert(pimpl->target_machine);
 
   pimpl->module.setTargetTriple(triple);
-  pimpl->module.setDataLayout(target_machine->createDataLayout());
+  pimpl->module.setDataLayout(pimpl->target_machine->createDataLayout());
 
   pimpl->size_type = llvm::StructType::create(
       "Size", pimpl->module.getDataLayout().getIntPtrType(pimpl->context));
@@ -100,6 +106,34 @@ void CodeGen::print_llvm_ir_to_cout() const { this->print_llvm_ir(std::cout); }
 void CodeGen::print_llvm_ir_to_string(std::string& s) const {
   llvm::raw_string_ostream ss{s};
   pimpl->module.print(ss, nullptr);
+}
+
+void CodeGen::emit_obj_file(rust::Str path) const {
+  std::error_code error_code;
+
+  fs::path p{std::string_view{path.data(), path.length()}};
+  fs::create_directories(p.parent_path(), error_code);
+  if(error_code) {
+    std::cerr << "failed creating directory for output file: "
+              << error_code.message() << std::endl;
+    std::exit(1);
+  }
+
+  llvm::legacy::PassManager pass_manager;
+  llvm::raw_fd_ostream file{StringRef{path.data(), path.length()}, error_code,
+                            llvm::sys::fs::CD_CreateAlways};
+  if(error_code) {
+    std::cerr << "failed opening output file: " << error_code.message()
+              << std::endl;
+    std::exit(1);
+  }
+  if(pimpl->target_machine->addPassesToEmitFile(pass_manager, file, nullptr,
+                                                llvm::CGFT_ObjectFile)) {
+    std::cerr << "target machine cannot emit file of this type\n";
+    std::exit(1);
+  }
+  pass_manager.run(pimpl->module);
+  file.flush();
 }
 
 CodeGen::Impl::Impl(std::string_view name)

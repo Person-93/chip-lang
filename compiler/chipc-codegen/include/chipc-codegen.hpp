@@ -28,6 +28,8 @@ namespace chipc::codegen {
 
     void print_llvm_ir_to_string(std::string&) const;
 
+    void emit_obj_file(rust::Str) const;
+
   private:
     struct Impl;
 
