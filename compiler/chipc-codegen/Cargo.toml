@@ -21,7 +21,12 @@ chip-snapshot-tests = { path = "../../tests/snapshot" }
 chipc-ast = { path = "../chipc-ast" }
 chipc-ast-lowering = { path = "../chipc-ast-lowering" }
 chipc-hir-lowering = { path = "../chipc-hir-lowering" }
+tempdir = "0.3.7"
 
 [[test]]
 name = "llvm_ir"
+harness = false
+
+[[test]]
+name = "object"
 harness = false
